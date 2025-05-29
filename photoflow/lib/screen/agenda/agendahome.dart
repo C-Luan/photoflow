@@ -1328,7 +1328,7 @@ class AgendaPanelState extends State<AgendaPanel> {
       padding: const EdgeInsets.symmetric(
           horizontal: 24, vertical: 12), // Reduzi padding vertical
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
               color: Colors.black.withOpacity(0.05),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:photoflow/screen/agenda/agendahome.dart';
+import 'package:photoflow/screen/projetos/projetos.dart';
 import 'package:photoflow/screen/settings/settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
@@ -17,7 +18,7 @@ class MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     AgendaPanel(),
     SettingsPage(),
-    // AgendaPanel(), // Seu painel de Agenda
+    ProjetosScreen(), // Seu painel de Agenda
     // BookingListPanel(), // Seu painel de Lista de Agendamentos
     // ReportPanel(), // Seu painel de Relatórios
   ];
@@ -125,7 +126,7 @@ class MainScreenState extends State<MainScreen> {
           VerticalDivider(thickness: 1, width: 1), // Linha divisória
           // Conteúdo principal da página selecionada
           Expanded(
-            child: _pages[0],
+            child: _pages[2],
           ),
         ],
       ),

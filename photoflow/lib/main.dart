@@ -26,7 +26,8 @@ class MyApp extends StatelessWidget {
       ],
       locale: Locale('pt', 'BR'),
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color.fromARGB(255, 56, 86, 218)),
         useMaterial3: true,
       ),
       home: MainScreen(),
