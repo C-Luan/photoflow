@@ -1,3 +1,5 @@
+import 'package:photoflow/models/projeto/cronograma.dart';
+import 'package:photoflow/models/projeto/equipe_projeto.dart';
 import 'package:photoflow/models/projeto/etapa_projeto.dart';
 import 'package:photoflow/models/tiposervico/categoria.dart';
 import 'package:photoflow/models/tiposervico/tiposervico.dart';
@@ -18,6 +20,8 @@ class Projeto {
   DateTime prazo;
   bool cancelado;
   bool pendente;
+  List<EquipeProjeto> equipe;
+  List<CronogramaProjeto> cronograma;
   Projeto({
     required this.cliente,
     required this.tipoServico,
@@ -28,6 +32,8 @@ class Projeto {
     required this.dataInicio,
     required this.prazo,
     required this.valor,
+    this.equipe = const [],
+    this.cronograma = const [],
     this.dataFim,
     this.pendente = false,
     this.cancelado = false,
@@ -42,6 +48,11 @@ class Projeto {
       observacao: json['observacao'] as String,
       conclusao: json['conclusao'] as bool,
       dataInicio: DateTime.parse(json['dataInicio'] as String),
+      equipe: json['equipe'] != null
+          ? (json['equipe'] as List)
+              .map((e) => EquipeProjeto.fromJson(e as Map<String, dynamic>))
+              .toList()
+          : [],
       dataFim: json['dataFim'] != null
           ? DateTime.parse(json['dataFim'] as String)
           : null,

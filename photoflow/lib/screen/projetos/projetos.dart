@@ -11,11 +11,14 @@ import 'package:photoflow/models/tiposervico/tiposervico.dart';
 import 'package:photoflow/models/tiposervico/categoria.dart';
 import 'package:photoflow/models/cliente/cliente.dart';
 import 'package:photoflow/models/projeto/etapa_projeto.dart';
+import 'package:photoflow/screen/projetos/dialog/detalhes_projetos.dart';
+// Se NovoProjetoDialog estiver em um arquivo separado, importe-o também.
+// import 'caminho/para/seu/novo_projeto_dialog.dart';
 
 // Constante para breakpoint
 const double kProjetosDesktopBreakpoint = 700.0;
 
-// Classe Tuple2
+// Classe Tuple2 (se não estiver usando Dart 3 records ou não tiver em um local global)
 class Tuple2<T1, T2> {
   final T1 item1;
   final T2 item2;
@@ -33,6 +36,7 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
   List<Projeto> _allProjetos = [];
   List<Projeto> _filteredProjetos = [];
 
+  // Estados dos Filtros
   String _selectedProjectFilterTab = "Todos";
   final TextEditingController _projectSearchController =
       TextEditingController();
@@ -50,12 +54,17 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
       TextEditingController();
   final TextEditingController _filtroPrazoController = TextEditingController();
   bool _isFilterPanelVisible = false;
+
+  // Estados para Ordenação
   bool _isSortPanelVisible = false;
   String? _sortByField;
   bool _sortAscending = true;
   final List<String> _sortableFields = [
-    "Data de Início", "Nome do Cliente", "Prazo Final", "Status (Etapa)",
-    "Valor" // Adicionado Valor
+    "Data de Início",
+    "Nome do Cliente",
+    "Prazo Final",
+    "Status (Etapa)",
+    "Valor"
   ];
 
   // --- PLACEHOLDERS DE MODELO ---
@@ -84,12 +93,18 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
   }
 
   void _loadProjetos() {
+    // Dados mockados existentes e novos
     final cliente1 = Cliente(nome: "Maria Silva");
     final cliente2 = Cliente(nome: "João Pereira");
     final cliente3 = Cliente(nome: "Ana Costa");
     final cliente4 = Cliente(nome: "Carlos Mendes");
     final cliente5 = Cliente(nome: "Fernanda Lima");
     final cliente6 = Cliente(nome: "Roberto Alves");
+    // Novos clientes
+    final cliente7 = Cliente(nome: "Beatriz Santos");
+    final cliente8 = Cliente(nome: "Lucas Oliveira");
+    final cliente9 = Cliente(nome: "Juliana Martins");
+    final cliente10 = Cliente(nome: "Ricardo Gomes");
 
     final categoriaCasamento = CategoriaServico(
         id: 1, nome: "Casamento", descricao: "Serviços de casamento");
@@ -97,6 +112,10 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
         CategoriaServico(id: 2, nome: "Ensaio", descricao: "Ensaios diversos");
     final categoriaCorp = CategoriaServico(
         id: 3, nome: "Corporativo", descricao: "Eventos corporativos");
+    final categoriaProduto = CategoriaServico(
+        id: 4,
+        nome: "Produto",
+        descricao: "Fotografia de produtos"); // Nova categoria
 
     final tipoCasamento = Tiposervico(
         id: 101,
@@ -134,99 +153,171 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
         nome: "Ensaio Pessoal",
         descricao: "Retratos",
         categoria: categoriaEnsaio);
+    // Novos tipos de serviço
+    final tipoProdutoStill = Tiposervico(
+        id: 401,
+        categoriaId: 4,
+        nome: "Foto Still Produto",
+        descricao: "Fotos de produto com fundo branco/neutro",
+        categoria: categoriaProduto);
+    final tipoVideoReels = Tiposervico(
+        id: 204,
+        categoriaId: 2,
+        nome: "Vídeo Reels Ensaio",
+        descricao: "Vídeo curto para redes sociais",
+        categoria: categoriaEnsaio);
+    final tipoInstitucional = Tiposervico(
+        id: 302,
+        categoriaId: 3,
+        nome: "Vídeo Institucional",
+        descricao: "Vídeo para apresentação da empresa",
+        categoria: categoriaCorp);
 
     final etapaFinalizado = EtapaProjeto(nome: "Finalizado", id: 5);
     final etapaEmExecucao = EtapaProjeto(nome: "Em Execução", id: 3);
     final etapaAgendado = EtapaProjeto(nome: "Agendado", id: 1);
-    final etapaPendente = EtapaProjeto(
-        nome: "Revisão Cliente",
-        id: 4); // Exemplo de etapa para um projeto pendente
+    final etapaPendente = EtapaProjeto(nome: "Revisão Cliente", id: 4);
     final etapaCancelada = EtapaProjeto(
         nome: "Planejamento",
-        id: 2); // Exemplo de etapa para um projeto cancelado
-    final today = DateTime.now();
+        id: 2); // Etapa base para um projeto que foi cancelado
+    final etapaEdicao = EtapaProjeto(nome: "Edição", id: 6); // Nova etapa
 
-    // TODO: Substitua pela sua lógica real de carregamento de dados.
+    final today = DateTime.now();
+    final DateFormat mockDateFormat = DateFormat(
+        'yyyy-MM-dd'); // Para facilitar a criação de datas passadas/futuras
+
     setState(() {
       _allProjetos = [
+        // Projetos existentes
         Projeto(
             cliente: cliente1,
             tipoServico: tipoCasamento,
             etapaProjeto: etapaFinalizado,
             categoriaServico: categoriaCasamento,
-            observacao: "Casamento da Maria",
+            observacao: "Casamento da Maria, tudo entregue.",
             conclusao: true,
             dataInicio: DateTime(2023, 10, 1),
             dataFim: DateTime(2023, 10, 24),
             prazo: DateTime(2023, 10, 25),
-            valor: 2500.00,
-            cancelado: false,
-            pendente: false),
+            valor: 2500.00),
         Projeto(
             cliente: cliente2,
             tipoServico: tipoPreWedding,
             etapaProjeto: etapaEmExecucao,
             categoriaServico: categoriaEnsaio,
-            observacao: "Ensaio do João",
+            observacao: "Ensaio do João, aguardando seleção.",
             conclusao: false,
             dataInicio: DateTime(2023, 10, 18),
             dataFim: null,
             prazo: today.add(Duration(days: 5)),
-            valor: 850.00,
-            cancelado: false,
-            pendente: false),
+            valor: 850.00),
         Projeto(
             cliente: cliente3,
             tipoServico: tipoGestante,
             etapaProjeto: etapaAgendado,
             categoriaServico: categoriaEnsaio,
-            observacao: "Ensaio da Ana",
+            observacao: "Ensaio da Ana, confirmar local.",
             conclusao: false,
-            dataInicio: DateTime(2023, 11, 1),
+            dataInicio: today.add(Duration(days: 10)),
             dataFim: null,
-            prazo: today,
-            valor: 600.00,
-            cancelado: false,
-            pendente: false),
+            prazo: today.add(Duration(days: 30)),
+            valor: 600.00), // Agendado para o futuro
         Projeto(
             cliente: cliente4,
             tipoServico: tipoCorporativo,
             etapaProjeto: etapaCancelada,
             categoriaServico: categoriaCorp,
-            observacao: "Evento cancelado pelo cliente.",
+            observacao: "Evento cancelado pelo cliente devido à chuva.",
             conclusao: false,
             dataInicio: DateTime(2023, 9, 1),
             dataFim: null,
             prazo: DateTime(2023, 9, 30),
             valor: 1200.00,
-            cancelado: true,
-            pendente: false),
+            cancelado: true),
         Projeto(
             cliente: cliente5,
             tipoServico: tipoAniversario,
             etapaProjeto: etapaPendente,
             categoriaServico: categoriaCasamento,
-            observacao: "Aguardando pagamento final",
+            observacao: "Aguardando pagamento final e aprovação das fotos.",
             conclusao: false,
             dataInicio: DateTime(2023, 11, 1),
             dataFim: null,
             prazo: today.subtract(Duration(days: 3)),
             valor: 750.00,
-            cancelado: false,
             pendente: true),
         Projeto(
             cliente: cliente6,
             tipoServico: tipoEnsaioPessoal,
             etapaProjeto: etapaAgendado,
             categoriaServico: categoriaEnsaio,
-            observacao: "Ensaio pessoal Roberto",
+            observacao: "Ensaio pessoal Roberto, local definido.",
             conclusao: false,
-            dataInicio: DateTime(2023, 11, 10),
+            dataInicio: today.add(Duration(days: 15)),
             dataFim: null,
-            prazo: today.add(Duration(days: 20)),
-            valor: 450.00,
-            cancelado: false,
-            pendente: false),
+            prazo: today.add(Duration(days: 45)),
+            valor: 450.00), // Agendado para o futuro
+
+        // Novos projetos para mais exemplos
+        Projeto(
+          cliente: cliente7,
+          tipoServico: tipoProdutoStill,
+          etapaProjeto: etapaEdicao, // Nova etapa "Edição"
+          categoriaServico: categoriaProduto,
+          observacao: "Fotos para catálogo de e-commerce, 20 produtos.",
+          conclusao: false,
+          dataInicio:
+              today.subtract(Duration(days: 7)), // Iniciou semana passada
+          prazo: today.add(Duration(days: 7)), // Prazo para daqui uma semana
+          valor: 950.00,
+        ),
+        Projeto(
+          cliente: cliente8,
+          tipoServico: tipoVideoReels,
+          etapaProjeto: etapaAgendado,
+          categoriaServico: categoriaEnsaio,
+          observacao: "Vídeo curto para Instagram, tema outono.",
+          conclusao: false,
+          dataInicio: today.add(Duration(days: 3)), // Inicia em 3 dias
+          prazo: today.add(Duration(days: 10)),
+          valor: 350.00,
+        ),
+        Projeto(
+          cliente: cliente9,
+          tipoServico: tipoInstitucional,
+          etapaProjeto: etapaEmExecucao,
+          categoriaServico: categoriaCorp,
+          observacao: "Roteiro aprovado, iniciando filmagens externas.",
+          conclusao: false,
+          dataInicio: today.subtract(Duration(days: 10)),
+          prazo: today.add(Duration(days: 20)),
+          valor: 3200.00,
+        ),
+        Projeto(
+          cliente: cliente10,
+          tipoServico: tipoCasamento, // Outro casamento
+          etapaProjeto: etapaPendente, // Pendente de alguma definição
+          categoriaServico: categoriaCasamento,
+          observacao: "Aguardando escolha do álbum pelos noivos.",
+          conclusao:
+              false, // Ainda não concluído, mas a etapa principal pode ter sido
+          dataInicio: DateTime(2023, 8, 15), // Projeto mais antigo
+          dataFim: null, // Ainda não tem data fim real
+          prazo: DateTime(2023, 12, 30), // Prazo longo, mas está pendente
+          valor: 2800.00,
+          pendente: true,
+        ),
+        Projeto(
+          cliente: cliente1, // Cliente repetido, outro projeto
+          tipoServico: tipoEnsaioPessoal,
+          etapaProjeto: etapaAgendado,
+          categoriaServico: categoriaEnsaio,
+          observacao: "Novo ensaio para Maria, desta vez em estúdio.",
+          conclusao: false,
+          dataInicio: today.add(Duration(days: 25)),
+          prazo: today.add(Duration(days: 50)),
+          valor: 500.00,
+        ),
       ];
       _populateDynamicFiltersFromData();
       _applyAllFilters();
@@ -234,7 +325,6 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
   }
 
   void _populateDynamicFiltersFromData() {
-    // ... (Lógica como antes para popular _etapasDisponiveisParaFiltro, _tiposServicoParaFiltro, _categoriasServicoParaFiltro) ...
     if (_allProjetos.isEmpty) {
       setState(() {
         _etapasDisponiveisParaFiltro = [];
@@ -276,14 +366,14 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
   }
 
   void _applyAllFilters() {
-    // ... (Lógica de filtragem como antes) ...
     List<Projeto> tempProjetos = List.from(_allProjetos);
+    // Filtro por Etapa usa o status real, que pode ser Cancelado/Pendente
     if (_selectedProjectFilterTab != "Todos") {
       tempProjetos = tempProjetos
           .where((p) =>
               _getProjectStatusAndColor(p).item1 == _selectedProjectFilterTab)
           .toList();
-    } // Modificado para usar o status real para filtro de aba
+    }
     if (_filtroDataInicioProjetos != null) {
       tempProjetos = tempProjetos
           .where((p) => !p.dataInicio.isBefore(_filtroDataInicioProjetos!))
@@ -331,9 +421,9 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
               p.tipoServico.nome.toLowerCase().contains(query) ||
               p.categoriaServico.nome.toLowerCase().contains(query) ||
               p.observacao.toLowerCase().contains(query) ||
-              (p.valor?.toString().contains(query) ?? false))
+              (p.valor.toString().contains(query)))
           .toList();
-    } // Adicionado valor na busca
+    }
 
     setState(() {
       _filteredProjetos = tempProjetos;
@@ -342,7 +432,6 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
   }
 
   void _clearAllFilters() {
-    // ... (Como antes) ...
     setState(() {
       _selectedProjectFilterTab = "Todos";
       _projectSearchController.clear();
@@ -360,14 +449,14 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
   }
 
   void _applySorting() {
-    if (_sortByField == null || _filteredProjetos.isEmpty) {
-      // Ordenação padrão se nenhuma for selecionada (ex: por data de início mais nova)
-      if (_filteredProjetos.isNotEmpty) {
-        _filteredProjetos.sort((a, b) => b.dataInicio.compareTo(a.dataInicio));
-      }
-      // setState(() {}); // Para atualizar a UI com a ordenação padrão se _sortByField for null
+    if (_sortByField == null && _filteredProjetos.isNotEmpty) {
+      // Aplica ordenação padrão se nenhuma estiver selecionada
+      _filteredProjetos.sort((a, b) =>
+          b.dataInicio.compareTo(a.dataInicio)); // Ex: mais novos primeiro
+      // setState(() {}); // Não é necessário se _applyAllFilters sempre chama _applySorting e faz setState
       return;
     }
+    if (_filteredProjetos.isEmpty || _sortByField == null) return;
 
     _filteredProjetos.sort((a, b) {
       int r = 0;
@@ -389,25 +478,21 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
               .toLowerCase()
               .compareTo(_getProjectStatusAndColor(b).item1.toLowerCase());
           break;
-        case "Valor": // Nova ordenação por valor
-          double valA =
-              a.valor ?? 0.0; // Trata valor nulo como 0 para ordenação
-          double valB = b.valor ?? 0.0;
+        case "Valor":
+          double valA = a.valor;
+          double valB = b.valor;
           r = valA.compareTo(valB);
           break;
       }
       return _sortAscending ? r : -r;
     });
-    // setState(() {}); // O setState será chamado pelo "Aplicar" do painel de sort ou por _applyAllFilters
+    // setState(() {}); // O setState é chamado no "Aplicar" do painel de sort ou por _applyAllFilters
   }
 
-  // ATUALIZADO: _getProjectStatusAndColor para incluir cancelado e pendente
   Tuple2<String, Color> _getProjectStatusAndColor(Projeto projeto) {
     if (projeto.cancelado) return Tuple2("Cancelado", Colors.grey.shade500);
     if (projeto.conclusao) return Tuple2("Concluído", Colors.green.shade600);
     if (projeto.pendente) return Tuple2("Pendente", Colors.orange.shade700);
-
-    // Assegure que etapaProjeto e etapaProjeto.nome não sejam nulos
     final etapaNome = projeto.etapaProjeto.nome.toLowerCase();
     switch (etapaNome) {
       case "em execução":
@@ -417,18 +502,14 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
       case "planejamento":
         return Tuple2("Agendado", Colors.purple.shade600);
       default:
-        return Tuple2(projeto.etapaProjeto.nome,
-            Colors.blueGrey.shade600); // Cor padrão para outras etapas
+        return Tuple2(projeto.etapaProjeto.nome, Colors.blueGrey.shade600);
     }
   }
 
-  // ATUALIZADO: _getProjectProgress para considerar cancelado e pendente
   double _getProjectProgress(Projeto projeto) {
-    if (projeto.cancelado)
-      return 0.0; // Ou 1.0 se quiser preencher a barra com cor de cancelado
+    if (projeto.cancelado) return 0.0;
     if (projeto.conclusao) return 1.0;
-    if (projeto.pendente) return 0.75; // Exemplo: 75% se pendente de algo final
-
+    if (projeto.pendente) return 0.75;
     final etapaNome = projeto.etapaProjeto.nome.toLowerCase();
     switch (etapaNome) {
       case "em execução":
@@ -444,49 +525,48 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
     }
   }
 
+  // CORRIGIDO: _buildProjectSummaryCard não retorna Expanded
   Widget _buildProjectSummaryCard(
       {required String title,
       required int count,
       required IconData iconData,
       required Color iconColor}) {
-    // ... (Como antes) ...
-    return Expanded(
-        child: Card(
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12.0),
-                side: BorderSide(color: Colors.grey.shade300, width: 1)),
-            child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(children: [
-                  CircleAvatar(
-                      radius: 20,
-                      backgroundColor: iconColor.withOpacity(0.1),
-                      child: Icon(iconData, size: 20, color: iconColor)),
-                  const SizedBox(width: 16),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(title,
-                            style: TextStyle(
-                                fontSize: 13, color: Colors.grey.shade700)),
-                        const SizedBox(height: 4),
-                        Text(count.toString(),
-                            style: Theme.of(context)
-                                .textTheme
-                                .headlineSmall
-                                ?.copyWith(fontWeight: FontWeight.bold)),
-                      ])
-                ]))));
+    return Card(
+      // Retorna o Card diretamente
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+          side: BorderSide(color: Colors.grey.shade300, width: 1)),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Row(children: [
+          CircleAvatar(
+              radius: 20,
+              backgroundColor: iconColor.withOpacity(0.1),
+              child: Icon(iconData, size: 20, color: iconColor)),
+          const SizedBox(width: 16),
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title,
+                style: TextStyle(fontSize: 13, color: Colors.grey.shade700)),
+            const SizedBox(height: 4),
+            Text(count.toString(),
+                style: Theme.of(context)
+                    .textTheme
+                    .headlineSmall
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+          ]),
+        ]),
+      ),
+    );
   }
 
   Widget _buildProjectCard(Projeto projeto) {
-    final statusInfo = _getProjectStatusAndColor(projeto); // (nome, cor)
+    // ... (Implementação completa como na resposta anterior, com contador de prazo e valor)
+    final statusInfo = _getProjectStatusAndColor(projeto);
     final progressValue = _getProjectProgress(projeto);
     final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
     final currencyFormat =
         NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
-
     String prazoText = "";
     Color prazoColor = Colors.grey.shade700;
     bool mostrarContadorPrazo = !projeto.conclusao && !projeto.cancelado;
@@ -497,7 +577,6 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
       final DateTime prazoProjeto =
           DateTime(projeto.prazo.year, projeto.prazo.month, projeto.prazo.day);
       final int diasRestantes = prazoProjeto.difference(hoje).inDays;
-
       if (diasRestantes > 1) {
         prazoText = "Faltam $diasRestantes dias";
         prazoColor = Colors.orange.shade700;
@@ -513,8 +592,6 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
         prazoColor = Colors.red.shade900;
       }
     }
-
-    // Formata o título do projeto: Tipo de Serviço + Sobrenome do Cliente (Exemplo)
     String projectTitle = projeto.tipoServico.nome;
     List<String> clientNameParts = projeto.cliente.nome.split(" ");
     if (clientNameParts.length > 1) {
@@ -524,254 +601,212 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
     }
 
     return Card(
-      elevation: 2.5, // Um pouco mais de elevação para o estilo do card
-      shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.circular(10.0)), // Bordas levemente arredondadas
-      clipBehavior: Clip.antiAlias, // Garante que o conteúdo respeite as bordas
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment:
-              MainAxisAlignment.spaceBetween, // Para empurrar ações para baixo
-          children: [
-            Column(
-              // Conteúdo principal do card
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Linha 1: Título do Projeto e Valor
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        projectTitle,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17), // Fonte um pouco maior
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 2,
-                      ),
-                    ),
-                    if (projeto.valor != null)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          currencyFormat.format(projeto.valor),
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor),
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-
-                // Linha 2: Data de Início
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today_outlined,
-                        size: 15, color: Colors.grey.shade700),
-                    const SizedBox(width: 6),
-                    Text(dateFormat.format(projeto.dataInicio),
-                        style: TextStyle(
-                            fontSize: 13, color: Colors.grey.shade700)),
-                  ],
-                ),
-                const SizedBox(height: 6),
-
-                // Linha 3: Nome do Cliente
-                Row(
-                  children: [
-                    Icon(Icons.person_outline,
-                        size: 16, color: Colors.grey.shade700),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      // Para o nome do cliente não estourar
-                      child: Text(projeto.cliente.nome,
-                          style: TextStyle(
-                              fontSize: 13, color: Colors.grey.shade700),
-                          overflow: TextOverflow.ellipsis),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Linha 4: Tags/Chips (Categoria, Tipo de Serviço) e Status Badge
-                Row(
-                  spacing: 20,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Wrap(
-                      spacing: 6.0,
-                      runSpacing: 4.0,
-                      children: [
-                        _buildTagChip(projeto.categoriaServico.nome,
-                            Colors.purple.shade50),
-                        // O segundo chip pode ser o nome do tipo de serviço se for curto, ou uma subcategoria
-                        // _buildTagChip(projeto.tipoServico.nome, Colors.blue.shade50),
-                      ],
-                    ),
-                    Wrap(
-                      spacing: 6.0,
-                      runSpacing: 4.0,
-                      children: [
-                        _buildTagChip(statusInfo.item1, statusInfo.item2),
-                        // O segundo chip pode ser o nome do tipo de serviço se for curto, ou uma subcategoria
-                        // _buildTagChip(projeto.tipoServico.nome, Colors.blue.shade50),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-
-                // Linha 5: Prazo Final e Contador (se aplicável)
-                if (mostrarContadorPrazo) ...[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Icon(Icons.hourglass_empty_outlined,
-                          size: 14, color: Colors.grey.shade700),
-                      const SizedBox(width: 4),
-                      Text("Prazo: ${dateFormat.format(projeto.prazo)}",
-                          style: TextStyle(
-                              fontSize: 12, color: Colors.grey.shade700)),
-                      const SizedBox(width: 8),
-                      if (prazoText.isNotEmpty)
-                        Expanded(
-                          child: Text(
-                            prazoText,
-                            style: TextStyle(
-                                fontSize: 11,
-                                color: prazoColor,
-                                fontWeight: FontWeight.w600),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                ] else if (projeto.conclusao && projeto.dataFim != null) ...[
-                  Text("Concluído em: ${dateFormat.format(projeto.dataFim!)}",
-                      style: TextStyle(
-                          fontSize: 12, color: Colors.green.shade700)),
-                  const SizedBox(height: 8),
-                ] else if (projeto.cancelado) ...[
-                  Text("Prazo original: ${dateFormat.format(projeto.prazo)}",
-                      style:
-                          TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-                  const SizedBox(height: 8),
-                ],
-
-                // Linha 6: Barra de Progresso (mantida conforme solicitado)
-                if (!projeto.cancelado) ...[
-                  // Não mostra progresso se cancelado
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: progressValue,
-                      backgroundColor: Colors.grey.shade300,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                          statusInfo.item2), // Usa a cor do status
-                      minHeight: 7, // Um pouco mais espessa
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text("${(progressValue * 100).toStringAsFixed(0)}%",
-                        style: TextStyle(
-                            fontSize: 11, color: Colors.grey.shade600)),
-                  ),
-                ],
-              ],
-            ),
-
-            // Linha 7: Ações (empurrada para baixo pelo Flexible Space ou MainAxisAlignment.spaceBetween no Column principal)
-            // Ou usando Spacer() no Column principal se a altura for fixa.
-            // Como a altura do card é dinâmica pelo Wrap na grade, vamos usar MainAxisAlignment.spaceBetween no Column principal.
-            Padding(
-              // Adiciona um pouco de padding acima dos botões
-              padding: const EdgeInsets.only(top: 10.0),
-              child: Row(
+        elevation: 2.5,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        clipBehavior: Clip.antiAlias,
+        child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  OutlinedButton(
-                    onPressed: () {
-                      // TODO: Implementar navegação para detalhes do projeto
-                    },
-                    style: OutlinedButton.styleFrom(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        side: BorderSide(
-                            color: Theme.of(context)
-                                .primaryColor
-                                .withOpacity(0.7)),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8))),
-                    child: Text("Ver detalhes",
-                        style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).primaryColor)),
-                  ),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.edit_outlined,
-                            size: 20, color: Colors.grey.shade700),
-                        tooltip: "Editar Projeto",
-                        splashRadius: 20,
-                        onPressed: () {
-                          // TODO: Implementar edição do projeto
-                        },
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.delete_outline,
-                            size: 20, color: Colors.red.shade400),
-                        tooltip: "Excluir Projeto",
-                        splashRadius: 20,
-                        onPressed: () {
-                          // TODO: Implementar exclusão do projeto
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+                  Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                  child: Text(projectTitle,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 17),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2)),
+                              if (projeto.valor != null)
+                                Padding(
+                                    padding: const EdgeInsets.only(left: 8.0),
+                                    child: Text(
+                                        currencyFormat.format(projeto.valor),
+                                        style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context)
+                                                .primaryColor))),
+                            ]),
+                        const SizedBox(height: 10),
+                        Row(children: [
+                          Icon(Icons.calendar_today_outlined,
+                              size: 15, color: Colors.grey.shade700),
+                          const SizedBox(width: 6),
+                          Text(dateFormat.format(projeto.dataInicio),
+                              style: TextStyle(
+                                  fontSize: 13, color: Colors.grey.shade700))
+                        ]),
+                        const SizedBox(height: 6),
+                        Row(children: [
+                          Icon(Icons.person_outline,
+                              size: 16, color: Colors.grey.shade700),
+                          const SizedBox(width: 6),
+                          Expanded(
+                              child: Text(projeto.cliente.nome,
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey.shade700),
+                                  overflow: TextOverflow.ellipsis))
+                        ]),
+                        const SizedBox(height: 12),
+                        Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Wrap(spacing: 6.0, runSpacing: 4.0, children: [
+                                _buildTagChip(projeto.categoriaServico.nome,
+                                    Colors.purple.shade50)
+                              ]),
+                              const Spacer(),
+                              Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                      color: statusInfo.item2.withOpacity(0.15),
+                                      borderRadius: BorderRadius.circular(12)),
+                                  child: Text(statusInfo.item1,
+                                      style: TextStyle(
+                                          color: statusInfo.item2,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600))),
+                            ]),
+                        const SizedBox(height: 12),
+                        if (mostrarContadorPrazo) ...[
+                          Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(Icons.hourglass_empty_outlined,
+                                    size: 14, color: Colors.grey.shade700),
+                                const SizedBox(width: 4),
+                                Text(
+                                    "Prazo: ${dateFormat.format(projeto.prazo)}",
+                                    style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey.shade700)),
+                                const SizedBox(width: 8),
+                                if (prazoText.isNotEmpty)
+                                  Expanded(
+                                      child: Text(prazoText,
+                                          style: TextStyle(
+                                              fontSize: 11,
+                                              color: prazoColor,
+                                              fontWeight: FontWeight.w600),
+                                          overflow: TextOverflow.ellipsis))
+                              ]),
+                          const SizedBox(height: 8)
+                        ] else if (projeto.conclusao &&
+                            projeto.dataFim != null) ...[
+                          Text(
+                              "Concluído em: ${dateFormat.format(projeto.dataFim!)}",
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.green.shade700)),
+                          const SizedBox(height: 8)
+                        ] else if (projeto.cancelado) ...[
+                          Text(
+                              "Prazo original: ${dateFormat.format(projeto.prazo)}",
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey.shade600)),
+                          const SizedBox(height: 8)
+                        ],
+                        if (!projeto.cancelado) ...[
+                          ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: LinearProgressIndicator(
+                                  value: progressValue,
+                                  backgroundColor: Colors.grey.shade300,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      statusInfo.item2),
+                                  minHeight: 7)),
+                          const SizedBox(height: 4),
+                          Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                  "${(progressValue * 100).toStringAsFixed(0)}%",
+                                  style: TextStyle(
+                                      fontSize: 11,
+                                      color: Colors.grey.shade600)))
+                        ],
+                      ]),
+                  Padding(
+                      padding: const EdgeInsets.only(top: 10.0),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            OutlinedButton(
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (builder) =>
+                                          ProjetoDetalhesDialog(
+                                              projeto: projeto));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                          content: Text(
+                                              "Ver Detalhes Clicado (TODO: Chamar Dialog)")));
+                                },
+                                style: OutlinedButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 8),
+                                    side: BorderSide(
+                                        color: Theme.of(context)
+                                            .primaryColor
+                                            .withOpacity(0.7)),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8))),
+                                child: Text("Ver detalhes",
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color:
+                                            Theme.of(context).primaryColor))),
+                            Row(children: [
+                              IconButton(
+                                  icon: Icon(Icons.edit_outlined,
+                                      size: 20, color: Colors.grey.shade700),
+                                  tooltip: "Editar Projeto",
+                                  splashRadius: 20,
+                                  onPressed: () {/* TODO: Editar */}),
+                              IconButton(
+                                  icon: Icon(Icons.delete_outline,
+                                      size: 20, color: Colors.red.shade400),
+                                  tooltip: "Excluir Projeto",
+                                  splashRadius: 20,
+                                  onPressed: () {/* TODO: Excluir */})
+                            ])
+                          ]))
+                ])));
   }
 
-// Helper para as Tags/Chips
   Widget _buildTagChip(String label, Color backgroundColor) {
+    // ... (Implementação como na resposta anterior) ...
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-            fontSize: 11,
-            color: (backgroundColor.computeLuminance() > 0.5
-                    ? Colors.black87
-                    : Colors.white)
-                .withOpacity(0.8),
-            fontWeight: FontWeight.w500),
-      ),
-    );
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+            color: backgroundColor, borderRadius: BorderRadius.circular(6)),
+        child: Text(label,
+            style: TextStyle(
+                fontSize: 11,
+                color: (backgroundColor.computeLuminance() > 0.5
+                        ? Colors.black87
+                        : Colors.white)
+                    .withOpacity(0.8),
+                fontWeight: FontWeight.w500)));
   }
 
   Widget _buildEtapaFilterTab(String title) {
-    // ... (Como antes) ...
+    // ... (Implementação como na resposta anterior) ...
     bool isSelected = _selectedProjectFilterTab == title;
     return Padding(
         padding: const EdgeInsets.only(right: 8.0),
@@ -810,7 +845,7 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
       required ValueChanged<DateTime?> onDateSelected,
       DateTime? firstDate,
       DateTime? lastDate}) {
-    // ... (Como antes) ...
+    // ... (Implementação como na resposta anterior) ...
     final DateFormat dateFormat = DateFormat('dd/MM/yyyy');
     if (currentValue != null && controller.text.isEmpty) {
       controller.text = dateFormat.format(currentValue);
@@ -847,7 +882,7 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
   }
 
   Widget _buildFilterPanelContent() {
-    // ... (Como antes) ...
+    // ... (Implementação como na resposta anterior) ...
     return Container(
         padding: const EdgeInsets.all(16.0),
         margin: const EdgeInsets.only(top: 10.0, bottom: 10.0),
@@ -1101,14 +1136,13 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
     int agendadosCount = _allProjetos
         .where((p) => _getProjectStatusAndColor(p).item1 == "Agendado")
         .length;
-    // Adicionar contadores para pendente e cancelado se desejar nos summary cards
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Sub-Header (FotoGerente, Novo Projeto)
+          // Sub-Header
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             Row(children: [
               Icon(Icons.camera_roll_outlined,
@@ -1131,47 +1165,51 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0))),
               onPressed: () {
-                // TODO: Chamar o NovoProjetoDialog.dart que foi criado em arquivo separado.
-                // Você precisará de uma função como _abrirDialogNovoProjeto() em _ProjetosScreenState
-                // que chame `showDialog` e passe as listas de tipos de serviço e etapas.
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text("TODO: Chamar Dialog Novo Projeto")));
               },
             ),
           ]),
           const SizedBox(height: 24),
-
-          // Cards de Resumo
+          // Cards de Resumo (LayoutBuilder CORRIGIDO)
           LayoutBuilder(builder: (context, constraints) {
             bool useRow = constraints.maxWidth > kProjetosDesktopBreakpoint;
-            List<Widget> summaryItems = [
-              _buildProjectSummaryCard(
-                  title: "Projetos Concluídos",
-                  count: concluidosCount,
-                  iconData: Icons.check_circle_outline,
-                  iconColor: Colors.green),
-              SizedBox(width: useRow ? 16 : 0, height: useRow ? 0 : 16),
-              _buildProjectSummaryCard(
-                  title: "Em Andamento",
-                  count: emAndamentoCount,
-                  iconData: Icons.hourglass_top_outlined,
-                  iconColor: Colors.blue),
-              SizedBox(width: useRow ? 16 : 0, height: useRow ? 0 : 16),
-              _buildProjectSummaryCard(
-                  title: "Agendados",
-                  count: agendadosCount,
-                  iconData: Icons.calendar_today_outlined,
-                  iconColor: Colors.purple),
-            ];
-            // TODO: Adicionar cards para Pendentes e Cancelados se desejar
-            return useRow
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: summaryItems)
-                : Column(children: summaryItems);
+            Widget cardConcluidos = _buildProjectSummaryCard(
+                title: "Projetos Concluídos",
+                count: concluidosCount,
+                iconData: Icons.check_circle_outline,
+                iconColor: Colors.green);
+            Widget cardEmAndamento = _buildProjectSummaryCard(
+                title: "Em Andamento",
+                count: emAndamentoCount,
+                iconData: Icons.hourglass_top_outlined,
+                iconColor: Colors.blue);
+            Widget cardAgendados = _buildProjectSummaryCard(
+                title: "Agendados",
+                count: agendadosCount,
+                iconData: Icons.calendar_today_outlined,
+                iconColor: Colors.purple);
+            if (useRow) {
+              return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: cardConcluidos),
+                    const SizedBox(width: 16),
+                    Expanded(child: cardEmAndamento),
+                    const SizedBox(width: 16),
+                    Expanded(child: cardAgendados),
+                  ]);
+            } else {
+              return Column(children: [
+                cardConcluidos,
+                const SizedBox(height: 16),
+                cardEmAndamento,
+                const SizedBox(height: 16),
+                cardAgendados,
+              ]);
+            }
           }),
           const SizedBox(height: 24),
-
           // Linha de Controles: Busca, Botão Filtros, Botão Ordenar
           Row(children: [
             Expanded(
@@ -1236,16 +1274,9 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
               }),
             ),
           ]),
-
-          // Painel de Filtros Condicional
           if (_isFilterPanelVisible) _buildFilterPanelContent(),
-
-          // Painel de Ordenação Condicional
           if (_isSortPanelVisible) _buildSortPanel(),
-
           const SizedBox(height: 20),
-
-          // Grid de Projetos
           _filteredProjetos.isEmpty
               ? Center(
                   child: Padding(
@@ -1255,15 +1286,13 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
                               color: Colors.grey.shade600, fontSize: 16))))
               : LayoutBuilder(builder: (context, constraints) {
                   int crossAxisCount = 3;
-                  double cardHeight =
-                      310; // Aumentei um pouco mais a altura do card
+                  double cardHeight = 320; // Ajustada altura do card
                   if (constraints.maxWidth < 1200) crossAxisCount = 2;
                   if (constraints.maxWidth < 760) crossAxisCount = 1;
                   double itemWidth =
                       (constraints.maxWidth - (crossAxisCount - 1) * 16) /
                           crossAxisCount;
                   if (crossAxisCount == 1) itemWidth = constraints.maxWidth;
-
                   return Wrap(
                     spacing: 16.0,
                     runSpacing: 16.0,
