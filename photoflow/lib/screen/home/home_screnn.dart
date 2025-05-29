@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:photoflow/screen/agenda/agendahome.dart';
+import 'package:photoflow/screen/settings/settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
   @override
-  _MainScreenState createState() => _MainScreenState();
+  MainScreenState createState() => MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class MainScreenState extends State<MainScreen> {
   bool _isExtended = false; // Controla o estado do NavigationRail
   int _selectedIndex = 0; // Controla qual tela está selecionada
 
   // Suas páginas/painéis
   final List<Widget> _pages = [
     AgendaPanel(),
+    SettingsPage(),
     // AgendaPanel(), // Seu painel de Agenda
     // BookingListPanel(), // Seu painel de Lista de Agendamentos
     // ReportPanel(), // Seu painel de Relatórios
@@ -21,18 +25,18 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Photoflow Admin'),
-        leading: IconButton(
-          // Botão para expandir/recuar o NavigationRail
-          icon: Icon(_isExtended ? Icons.menu_open : Icons.menu),
-          onPressed: () {
-            setState(() {
-              _isExtended = !_isExtended;
-            });
-          },
-        ),
-      ),
+      // appBar: AppBar(
+      //   title: Text('Photoflow Admin'),
+      //   leading: IconButton(
+      //     // Botão para expandir/recuar o NavigationRail
+      //     icon: Icon(_isExtended ? Icons.menu_open : Icons.menu),
+      //     onPressed: () {
+      //       setState(() {
+      //         _isExtended = !_isExtended;
+      //       });
+      //     },
+      //   ),
+      // ),
       body: Row(
         children: <Widget>[
           NavigationRail(
@@ -46,6 +50,16 @@ class _MainScreenState extends State<MainScreen> {
             labelType: _isExtended
                 ? NavigationRailLabelType.none
                 : NavigationRailLabelType.selected, // ou .all
+            leading: IconButton(
+              // Botão para expandir/recuar o NavigationRail
+              icon: Icon(_isExtended ? Icons.menu_open : Icons.menu),
+              onPressed: () {
+                setState(() {
+                  _isExtended = !_isExtended;
+                });
+              },
+            ),
+
             // leading: _isExtended
             //     ? FloatingActionButton(
             //         elevation: 0,

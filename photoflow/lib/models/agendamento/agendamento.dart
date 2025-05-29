@@ -1,3 +1,5 @@
+import 'package:photoflow/models/tiposervico/tiposervico.dart';
+
 class Agendamento {
   String id;
   String nome;
@@ -5,7 +7,7 @@ class Agendamento {
   String telefone;
   DateTime data;
   String servico;
-
+  Tiposervico? tipoServico;
   Agendamento({
     required this.id,
     required this.nome,
@@ -13,6 +15,7 @@ class Agendamento {
     required this.telefone,
     required this.data,
     required this.servico,
+    this.tipoServico,
   });
 
   Map<String, dynamic> toMap() {
