@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:photoflow/screen/agenda/agendahome.dart';
+import 'package:photoflow/screen/cliente/cliente_screen.dart';
+import 'package:photoflow/screen/dashboard/dashboard_screen.dart';
+import 'package:photoflow/screen/financeiro/financeiro_screen.dart';
 import 'package:photoflow/screen/projetos/projetos.dart';
 import 'package:photoflow/screen/settings/settings_screen.dart';
 
@@ -16,11 +19,12 @@ class MainScreenState extends State<MainScreen> {
 
   // Suas páginas/painéis
   final List<Widget> _pages = [
+    MainDashboardScreen(),
+    ClientsScreen(),
     AgendaPanel(),
+    ProjetosScreen(),
+    FinanceiroScreen(),
     SettingsPage(),
-    ProjetosScreen(), // Seu painel de Agenda
-    // BookingListPanel(), // Seu painel de Lista de Agendamentos
-    // ReportPanel(), // Seu painel de Relatórios
   ];
 
   @override
@@ -41,6 +45,21 @@ class MainScreenState extends State<MainScreen> {
       body: Row(
         children: <Widget>[
           NavigationRail(
+            selectedLabelTextStyle: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+            unselectedLabelTextStyle: TextStyle(
+              color: Colors.white70,
+            ),
+            selectedIconTheme: IconThemeData(
+              color: Colors.white,
+            ),
+            unselectedIconTheme: IconThemeData(
+              color: Colors.white70,
+            ),
+            backgroundColor: Theme.of(context).primaryColor,
+            indicatorColor: Theme.of(context).hintColor,
             selectedIndex: _selectedIndex,
             extended: _isExtended,
             onDestinationSelected: (int index) {
@@ -53,7 +72,10 @@ class MainScreenState extends State<MainScreen> {
                 : NavigationRailLabelType.selected, // ou .all
             leading: IconButton(
               // Botão para expandir/recuar o NavigationRail
-              icon: Icon(_isExtended ? Icons.menu_open : Icons.menu),
+              icon: Icon(
+                _isExtended ? Icons.menu_open : Icons.menu,
+                color: Colors.white,
+              ),
               onPressed: () {
                 setState(() {
                   _isExtended = !_isExtended;
@@ -97,11 +119,6 @@ class MainScreenState extends State<MainScreen> {
                 label: Text('Financeiro'),
               ),
               NavigationRailDestination(
-                icon: Icon(Icons.edit_document),
-                selectedIcon: Icon(Icons.edit_document),
-                label: Text('Contratos'),
-              ),
-              NavigationRailDestination(
                 icon: Icon(Icons.settings),
                 selectedIcon: Icon(Icons.settings_outlined),
                 label: Text('Configurações'),
@@ -126,7 +143,7 @@ class MainScreenState extends State<MainScreen> {
           VerticalDivider(thickness: 1, width: 1), // Linha divisória
           // Conteúdo principal da página selecionada
           Expanded(
-            child: _pages[2],
+            child: _pages[_selectedIndex],
           ),
         ],
       ),
