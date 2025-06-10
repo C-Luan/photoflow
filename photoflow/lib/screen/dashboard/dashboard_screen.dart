@@ -447,7 +447,7 @@ class _UpcomingAppointmentsSectionWidget extends StatelessWidget {
                 label: const Text('Novo Agendamento'),
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
+                    backgroundColor: const Color.fromARGB(255, 71, 121, 233),
                     foregroundColor: Colors.white),
               ),
             ),

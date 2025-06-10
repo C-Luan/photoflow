@@ -85,8 +85,6 @@ class SettingsPage extends StatelessWidget {
     // If you're embedding this page within another Scaffold, you might
     // adjust this structure (e.g., remove the AppBar if it's already provided).
     return Scaffold(
-      // Using a light grey background similar to many web settings pages
-      backgroundColor: const Color(0xFFF0F2F5),
       appBar: AppBar(
         title: const Text('Configurações',
             style:
@@ -231,7 +229,7 @@ class _SettingsCardState extends State<SettingsCard> {
               ElevatedButton(
                 onPressed: widget.onButtonPressed,
                 style: ElevatedButton.styleFrom(
-                    // Using theme for button style but can override
+                    // // Using theme for button style but can override
                     // backgroundColor: Theme.of(context).colorScheme.secondary,
                     // foregroundColor: Theme.of(context).colorScheme.onSecondary,
                     padding: const EdgeInsets.symmetric(

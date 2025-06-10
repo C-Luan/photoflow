@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:photoflow/services/loginserver/authservicefirebase.dart';
 
 // ... (outros imports, se houver)
 
@@ -12,9 +15,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _rememberMe = false;
-
-  // ... (resto do _LoginScreenState: initState, dispose, buildBokehCircle, etc. como antes) ...
-
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final AuthServiceFirebase _authService = AuthServiceFirebase();
   @override
   Widget build(BuildContext context) {
     const Color pageBackgroundColor = Color.fromARGB(255, 25, 30, 53);
@@ -106,12 +109,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 32),
                     _buildTextField(
                       label: "Email",
+                      controller: _emailController,
                       hint: "seu@email.com",
                       textColor: primaryTextColor,
                       fieldBackgroundColor: fieldBackgroundColor,
                     ),
                     const SizedBox(height: 18),
                     _buildPasswordField(
+                      controller: _passwordController,
                       label: "Senha",
                       hint: "••••••••",
                       textColor: primaryTextColor,
@@ -135,7 +140,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       gradientColors: buttonGradientColors,
                       textColor: primaryTextColor,
                       onPressed: () {
-                        print("Botão Entrar pressionado");
+                        _authService.signInWithEmailAndPassword(
+                            email: _emailController.text,
+                            password: _passwordController.text);
                       },
                     ),
                     const SizedBox(height: 20),
@@ -155,8 +162,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     _buildSocialLoginButton(
                         imageAssetPath: "assets/logos/google.png",
                         text: "Google",
-                        // backgroundColor e textColor não são mais passados, são definidos dentro do método
-                        onPressed: () {/* TODO: Login com Google */}),
+                        onPressed: () async {
+                          await _authService.signInWithGoogle().then((onValue){
+                            
+                          });
+                        }),
                     const SizedBox(
                         height: 12), // Espaçamento entre os botões sociais
                     _buildSocialLoginButton(
@@ -178,17 +188,12 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // --- MÉTODOS AUXILIARES ---
-  // _buildTextField, _buildPasswordField, _buildRememberMeCheckbox,
-  // _buildLoginButton, _buildSignUpLink, _buildDividerText
-  // PERMANECEM OS MESMOS da resposta anterior.
-  // Cole-os aqui se precisar do contexto completo.
-  // Exemplo:
   Widget _buildTextField({
     required String label,
     required String hint,
     required Color textColor,
     required Color fieldBackgroundColor,
+    required TextEditingController controller,
     bool isObscure = false,
     TextInputType keyboardType = TextInputType.text,
   }) {
@@ -203,6 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: 8),
         TextFormField(
           obscureText: isObscure,
+          controller: controller,
           keyboardType: keyboardType,
           style: TextStyle(color: textColor, fontSize: 15),
           decoration: InputDecoration(
@@ -228,6 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
     required Color textColor,
     required Color fieldBackgroundColor,
     required Color linkColor,
+    required TextEditingController controller,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,6 +264,7 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: 8),
         TextFormField(
           obscureText: true,
+          controller: controller,
           style: TextStyle(color: textColor, fontSize: 15),
           decoration: InputDecoration(
             hintText: hint,
@@ -406,9 +414,6 @@ class _LoginScreenState extends State<LoginScreen> {
         imageAssetPath,
         height: 22, // Ajuste o tamanho do logo conforme necessário
         width: 22,
-        // Para logos como o da Apple que podem ser brancos e sumir em fundo branco (não é o caso aqui)
-        // você pode precisar de um colorBlendMode ou tratar a imagem.
-        // Mas para este design com fundo escuro, deve funcionar bem.
         errorBuilder: (context, error, stackTrace) {
           // Fallback caso a imagem não carregue
           return Icon(Icons.error_outline,
@@ -440,13 +445,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-// Dentro do método build da _LoginScreenState:
-// ...
-// const SizedBox(height: 20), // Espaço antes dos botões sociais
-// _buildDividerText(text: "Ou continue com", textColor: secondaryTextColor),
-// const SizedBox(height: 20),
-
-// ... (fim do Column e do build method)
-// ...
 }

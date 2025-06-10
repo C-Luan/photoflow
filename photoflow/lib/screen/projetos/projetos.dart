@@ -12,6 +12,7 @@ import 'package:photoflow/models/tiposervico/categoria.dart';
 import 'package:photoflow/models/cliente/cliente.dart';
 import 'package:photoflow/models/projeto/etapa_projeto.dart';
 import 'package:photoflow/screen/projetos/dialog/detalhes_projetos.dart';
+import 'package:photoflow/screen/projetos/dialog/novo_projeto_dialog.dart';
 // Se NovoProjetoDialog estiver em um arquivo separado, importe-o também.
 // import 'caminho/para/seu/novo_projeto_dialog.dart';
 
@@ -106,72 +107,72 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
     final cliente9 = Cliente(nome: "Juliana Martins");
     final cliente10 = Cliente(nome: "Ricardo Gomes");
 
-    final categoriaCasamento = CategoriaServico(
-        id: 1, nome: "Casamento", descricao: "Serviços de casamento");
-    final categoriaEnsaio =
-        CategoriaServico(id: 2, nome: "Ensaio", descricao: "Ensaios diversos");
-    final categoriaCorp = CategoriaServico(
-        id: 3, nome: "Corporativo", descricao: "Eventos corporativos");
-    final categoriaProduto = CategoriaServico(
-        id: 4,
-        nome: "Produto",
-        descricao: "Fotografia de produtos"); // Nova categoria
+    // final categoriaCasamento = CategoriaServico(
+    //     id: 1, nome: "Casamento", descricao: "Serviços de casamento");
+    // final categoriaEnsaio =
+    //     CategoriaServico(id: 2, nome: "Ensaio", descricao: "Ensaios diversos");
+    // final categoriaCorp = CategoriaServico(
+    //     id: 3, nome: "Corporativo", descricao: "Eventos corporativos");
+    // final categoriaProduto = CategoriaServico(
+    //     id: 4,
+    //     nome: "Produto",
+    //     descricao: "Fotografia de produtos"); // Nova categoria
 
-    final tipoCasamento = Tiposervico(
-        id: 101,
-        categoriaId: 1,
-        nome: "Casamento Completo",
-        descricao: "Cobertura total",
-        categoria: categoriaCasamento);
-    final tipoPreWedding = Tiposervico(
-        id: 201,
-        categoriaId: 2,
-        nome: "Ensaio Pré-Wedding",
-        descricao: "Ensaio antes do casamento",
-        categoria: categoriaEnsaio);
-    final tipoGestante = Tiposervico(
-        id: 202,
-        categoriaId: 2,
-        nome: "Ensaio Gestante",
-        descricao: "Ensaio de gestante",
-        categoria: categoriaEnsaio);
-    final tipoCorporativo = Tiposervico(
-        id: 301,
-        categoriaId: 3,
-        nome: "Evento Corporativo",
-        descricao: "Cobertura de evento",
-        categoria: categoriaCorp);
-    final tipoAniversario = Tiposervico(
-        id: 102,
-        categoriaId: 1,
-        nome: "Aniversário",
-        descricao: "Festa de aniversário",
-        categoria: categoriaCasamento);
-    final tipoEnsaioPessoal = Tiposervico(
-        id: 203,
-        categoriaId: 2,
-        nome: "Ensaio Pessoal",
-        descricao: "Retratos",
-        categoria: categoriaEnsaio);
-    // Novos tipos de serviço
-    final tipoProdutoStill = Tiposervico(
-        id: 401,
-        categoriaId: 4,
-        nome: "Foto Still Produto",
-        descricao: "Fotos de produto com fundo branco/neutro",
-        categoria: categoriaProduto);
-    final tipoVideoReels = Tiposervico(
-        id: 204,
-        categoriaId: 2,
-        nome: "Vídeo Reels Ensaio",
-        descricao: "Vídeo curto para redes sociais",
-        categoria: categoriaEnsaio);
-    final tipoInstitucional = Tiposervico(
-        id: 302,
-        categoriaId: 3,
-        nome: "Vídeo Institucional",
-        descricao: "Vídeo para apresentação da empresa",
-        categoria: categoriaCorp);
+    // final tipoCasamento = Tiposervico(
+    //     id: 101,
+    //     categoriaId: 1,
+    //     nome: "Casamento Completo",
+    //     descricao: "Cobertura total",
+    //     categoria: categoriaCasamento);
+    // final tipoPreWedding = Tiposervico(
+    //     id: 201,
+    //     categoriaId: 2,
+    //     nome: "Ensaio Pré-Wedding",
+    //     descricao: "Ensaio antes do casamento",
+    //     categoria: categoriaEnsaio);
+    // final tipoGestante = Tiposervico(
+    //     id: 202,
+    //     categoriaId: 2,
+    //     nome: "Ensaio Gestante",
+    //     descricao: "Ensaio de gestante",
+    //     categoria: categoriaEnsaio);
+    // final tipoCorporativo = Tiposervico(
+    //     id: 301,
+    //     categoriaId: 3,
+    //     nome: "Evento Corporativo",
+    //     descricao: "Cobertura de evento",
+    //     categoria: categoriaCorp);
+    // final tipoAniversario = Tiposervico(
+    //     id: 102,
+    //     categoriaId: 1,
+    //     nome: "Aniversário",
+    //     descricao: "Festa de aniversário",
+    //     categoria: categoriaCasamento);
+    // final tipoEnsaioPessoal = Tiposervico(
+    //     id: 203,
+    //     categoriaId: 2,
+    //     nome: "Ensaio Pessoal",
+    //     descricao: "Retratos",
+    //     categoria: categoriaEnsaio);
+    // // Novos tipos de serviço
+    // final tipoProdutoStill = Tiposervico(
+    //     id: 401,
+    //     categoriaId: 4,
+    //     nome: "Foto Still Produto",
+    //     descricao: "Fotos de produto com fundo branco/neutro",
+    //     categoria: categoriaProduto);
+    // final tipoVideoReels = Tiposervico(
+    //     id: 204,
+    //     categoriaId: 2,
+    //     nome: "Vídeo Reels Ensaio",
+    //     descricao: "Vídeo curto para redes sociais",
+    //     categoria: categoriaEnsaio);
+    // final tipoInstitucional = Tiposervico(
+    //     id: 302,
+    //     categoriaId: 3,
+    //     nome: "Vídeo Institucional",
+    //     descricao: "Vídeo para apresentação da empresa",
+    //     categoria: categoriaCorp);
 
     final etapaFinalizado = EtapaProjeto(nome: "Finalizado", id: 5);
     final etapaEmExecucao = EtapaProjeto(nome: "Em Execução", id: 3);
@@ -189,135 +190,135 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
     setState(() {
       _allProjetos = [
         // Projetos existentes
-        Projeto(
-            cliente: cliente1,
-            tipoServico: tipoCasamento,
-            etapaProjeto: etapaFinalizado,
-            categoriaServico: categoriaCasamento,
-            observacao: "Casamento da Maria, tudo entregue.",
-            conclusao: true,
-            dataInicio: DateTime(2023, 10, 1),
-            dataFim: DateTime(2023, 10, 24),
-            prazo: DateTime(2023, 10, 25),
-            valor: 2500.00),
-        Projeto(
-            cliente: cliente2,
-            tipoServico: tipoPreWedding,
-            etapaProjeto: etapaEmExecucao,
-            categoriaServico: categoriaEnsaio,
-            observacao: "Ensaio do João, aguardando seleção.",
-            conclusao: false,
-            dataInicio: DateTime(2023, 10, 18),
-            dataFim: null,
-            prazo: today.add(Duration(days: 5)),
-            valor: 850.00),
-        Projeto(
-            cliente: cliente3,
-            tipoServico: tipoGestante,
-            etapaProjeto: etapaAgendado,
-            categoriaServico: categoriaEnsaio,
-            observacao: "Ensaio da Ana, confirmar local.",
-            conclusao: false,
-            dataInicio: today.add(Duration(days: 10)),
-            dataFim: null,
-            prazo: today.add(Duration(days: 30)),
-            valor: 600.00), // Agendado para o futuro
-        Projeto(
-            cliente: cliente4,
-            tipoServico: tipoCorporativo,
-            etapaProjeto: etapaCancelada,
-            categoriaServico: categoriaCorp,
-            observacao: "Evento cancelado pelo cliente devido à chuva.",
-            conclusao: false,
-            dataInicio: DateTime(2023, 9, 1),
-            dataFim: null,
-            prazo: DateTime(2023, 9, 30),
-            valor: 1200.00,
-            cancelado: true),
-        Projeto(
-            cliente: cliente5,
-            tipoServico: tipoAniversario,
-            etapaProjeto: etapaPendente,
-            categoriaServico: categoriaCasamento,
-            observacao: "Aguardando pagamento final e aprovação das fotos.",
-            conclusao: false,
-            dataInicio: DateTime(2023, 11, 1),
-            dataFim: null,
-            prazo: today.subtract(Duration(days: 3)),
-            valor: 750.00,
-            pendente: true),
-        Projeto(
-            cliente: cliente6,
-            tipoServico: tipoEnsaioPessoal,
-            etapaProjeto: etapaAgendado,
-            categoriaServico: categoriaEnsaio,
-            observacao: "Ensaio pessoal Roberto, local definido.",
-            conclusao: false,
-            dataInicio: today.add(Duration(days: 15)),
-            dataFim: null,
-            prazo: today.add(Duration(days: 45)),
-            valor: 450.00), // Agendado para o futuro
+        // Projeto(
+        //     cliente: cliente1,
+        //     tipoServico: tipoCasamento,
+        //     etapaProjeto: etapaFinalizado,
+        //     categoriaServico: categoriaCasamento,
+        //     observacao: "Casamento da Maria, tudo entregue.",
+        //     conclusao: true,
+        //     dataInicio: DateTime(2023, 10, 1),
+        //     dataFim: DateTime(2023, 10, 24),
+        //     prazo: DateTime(2023, 10, 25),
+        //     valor: 2500.00),
+        // Projeto(
+        //     cliente: cliente2,
+        //     tipoServico: tipoPreWedding,
+        //     etapaProjeto: etapaEmExecucao,
+        //     categoriaServico: categoriaEnsaio,
+        //     observacao: "Ensaio do João, aguardando seleção.",
+        //     conclusao: false,
+        //     dataInicio: DateTime(2023, 10, 18),
+        //     dataFim: null,
+        //     prazo: today.add(Duration(days: 5)),
+        //     valor: 850.00),
+        // Projeto(
+        //     cliente: cliente3,
+        //     tipoServico: tipoGestante,
+        //     etapaProjeto: etapaAgendado,
+        //     categoriaServico: categoriaEnsaio,
+        //     observacao: "Ensaio da Ana, confirmar local.",
+        //     conclusao: false,
+        //     dataInicio: today.add(Duration(days: 10)),
+        //     dataFim: null,
+        //     prazo: today.add(Duration(days: 30)),
+        //     valor: 600.00), // Agendado para o futuro
+        // Projeto(
+        //     cliente: cliente4,
+        //     tipoServico: tipoCorporativo,
+        //     etapaProjeto: etapaCancelada,
+        //     categoriaServico: categoriaCorp,
+        //     observacao: "Evento cancelado pelo cliente devido à chuva.",
+        //     conclusao: false,
+        //     dataInicio: DateTime(2023, 9, 1),
+        //     dataFim: null,
+        //     prazo: DateTime(2023, 9, 30),
+        //     valor: 1200.00,
+        //     cancelado: true),
+        // Projeto(
+        //     cliente: cliente5,
+        //     tipoServico: tipoAniversario,
+        //     etapaProjeto: etapaPendente,
+        //     categoriaServico: categoriaCasamento,
+        //     observacao: "Aguardando pagamento final e aprovação das fotos.",
+        //     conclusao: false,
+        //     dataInicio: DateTime(2023, 11, 1),
+        //     dataFim: null,
+        //     prazo: today.subtract(Duration(days: 3)),
+        //     valor: 750.00,
+        //     pendente: true),
+        // Projeto(
+        //     cliente: cliente6,
+        //     tipoServico: tipoEnsaioPessoal,
+        //     etapaProjeto: etapaAgendado,
+        //     categoriaServico: categoriaEnsaio,
+        //     observacao: "Ensaio pessoal Roberto, local definido.",
+        //     conclusao: false,
+        //     dataInicio: today.add(Duration(days: 15)),
+        //     dataFim: null,
+        //     prazo: today.add(Duration(days: 45)),
+        //     valor: 450.00), // Agendado para o futuro
 
-        // Novos projetos para mais exemplos
-        Projeto(
-          cliente: cliente7,
-          tipoServico: tipoProdutoStill,
-          etapaProjeto: etapaEdicao, // Nova etapa "Edição"
-          categoriaServico: categoriaProduto,
-          observacao: "Fotos para catálogo de e-commerce, 20 produtos.",
-          conclusao: false,
-          dataInicio:
-              today.subtract(Duration(days: 7)), // Iniciou semana passada
-          prazo: today.add(Duration(days: 7)), // Prazo para daqui uma semana
-          valor: 950.00,
-        ),
-        Projeto(
-          cliente: cliente8,
-          tipoServico: tipoVideoReels,
-          etapaProjeto: etapaAgendado,
-          categoriaServico: categoriaEnsaio,
-          observacao: "Vídeo curto para Instagram, tema outono.",
-          conclusao: false,
-          dataInicio: today.add(Duration(days: 3)), // Inicia em 3 dias
-          prazo: today.add(Duration(days: 10)),
-          valor: 350.00,
-        ),
-        Projeto(
-          cliente: cliente9,
-          tipoServico: tipoInstitucional,
-          etapaProjeto: etapaEmExecucao,
-          categoriaServico: categoriaCorp,
-          observacao: "Roteiro aprovado, iniciando filmagens externas.",
-          conclusao: false,
-          dataInicio: today.subtract(Duration(days: 10)),
-          prazo: today.add(Duration(days: 20)),
-          valor: 3200.00,
-        ),
-        Projeto(
-          cliente: cliente10,
-          tipoServico: tipoCasamento, // Outro casamento
-          etapaProjeto: etapaPendente, // Pendente de alguma definição
-          categoriaServico: categoriaCasamento,
-          observacao: "Aguardando escolha do álbum pelos noivos.",
-          conclusao:
-              false, // Ainda não concluído, mas a etapa principal pode ter sido
-          dataInicio: DateTime(2023, 8, 15), // Projeto mais antigo
-          dataFim: null, // Ainda não tem data fim real
-          prazo: DateTime(2023, 12, 30), // Prazo longo, mas está pendente
-          valor: 2800.00,
-          pendente: true,
-        ),
-        Projeto(
-          cliente: cliente1, // Cliente repetido, outro projeto
-          tipoServico: tipoEnsaioPessoal,
-          etapaProjeto: etapaAgendado,
-          categoriaServico: categoriaEnsaio,
-          observacao: "Novo ensaio para Maria, desta vez em estúdio.",
-          conclusao: false,
-          dataInicio: today.add(Duration(days: 25)),
-          prazo: today.add(Duration(days: 50)),
-          valor: 500.00,
-        ),
+        // // Novos projetos para mais exemplos
+        // Projeto(
+        //   cliente: cliente7,
+        //   tipoServico: tipoProdutoStill,
+        //   etapaProjeto: etapaEdicao, // Nova etapa "Edição"
+        //   categoriaServico: categoriaProduto,
+        //   observacao: "Fotos para catálogo de e-commerce, 20 produtos.",
+        //   conclusao: false,
+        //   dataInicio:
+        //       today.subtract(Duration(days: 7)), // Iniciou semana passada
+        //   prazo: today.add(Duration(days: 7)), // Prazo para daqui uma semana
+        //   valor: 950.00,
+        // ),
+        // Projeto(
+        //   cliente: cliente8,
+        //   tipoServico: tipoVideoReels,
+        //   etapaProjeto: etapaAgendado,
+        //   categoriaServico: categoriaEnsaio,
+        //   observacao: "Vídeo curto para Instagram, tema outono.",
+        //   conclusao: false,
+        //   dataInicio: today.add(Duration(days: 3)), // Inicia em 3 dias
+        //   prazo: today.add(Duration(days: 10)),
+        //   valor: 350.00,
+        // ),
+        // Projeto(
+        //   cliente: cliente9,
+        //   tipoServico: tipoInstitucional,
+        //   etapaProjeto: etapaEmExecucao,
+        //   categoriaServico: categoriaCorp,
+        //   observacao: "Roteiro aprovado, iniciando filmagens externas.",
+        //   conclusao: false,
+        //   dataInicio: today.subtract(Duration(days: 10)),
+        //   prazo: today.add(Duration(days: 20)),
+        //   valor: 3200.00,
+        // ),
+        // Projeto(
+        //   cliente: cliente10,
+        //   tipoServico: tipoCasamento, // Outro casamento
+        //   etapaProjeto: etapaPendente, // Pendente de alguma definição
+        //   categoriaServico: categoriaCasamento,
+        //   observacao: "Aguardando escolha do álbum pelos noivos.",
+        //   conclusao:
+        //       false, // Ainda não concluído, mas a etapa principal pode ter sido
+        //   dataInicio: DateTime(2023, 8, 15), // Projeto mais antigo
+        //   dataFim: null, // Ainda não tem data fim real
+        //   prazo: DateTime(2023, 12, 30), // Prazo longo, mas está pendente
+        //   valor: 2800.00,
+        //   pendente: true,
+        // ),
+        // Projeto(
+        //   cliente: cliente1, // Cliente repetido, outro projeto
+        //   tipoServico: tipoEnsaioPessoal,
+        //   etapaProjeto: etapaAgendado,
+        //   categoriaServico: categoriaEnsaio,
+        //   observacao: "Novo ensaio para Maria, desta vez em estúdio.",
+        //   conclusao: false,
+        //   dataInicio: today.add(Duration(days: 25)),
+        //   prazo: today.add(Duration(days: 50)),
+        //   valor: 500.00,
+        // ),
       ];
       _populateDynamicFiltersFromData();
       _applyAllFilters();
@@ -1158,13 +1159,17 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
               icon: Icon(Icons.add, size: 18),
               label: Text("Novo Projeto"),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0))),
               onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (builder) => NovoProjetoDialog(
+                      tiposDeServicoDisponiveis: _tiposServicoParaFiltro,
+                      etapasDeProjetoDisponiveis: []),
+                );
                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text("TODO: Chamar Dialog Novo Projeto")));
               },
@@ -1236,10 +1241,6 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
                   size: 18),
               label: Text("Filtros"),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: _isFilterPanelVisible
-                      ? Theme.of(context).primaryColor.withOpacity(0.8)
-                      : Theme.of(context).primaryColor,
-                  foregroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
                   shape: RoundedRectangleBorder(

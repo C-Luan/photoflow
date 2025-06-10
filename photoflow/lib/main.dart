@@ -1,12 +1,17 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:photoflow/screen/home/home_screen.dart';
-import 'package:photoflow/screen/login/login_screen.dart';
-import 'package:photoflow/screen/novo_usuario/sign_up_screen.dart';
+import 'package:photoflow/dependency_injector/dependency_injector.dart';
+import 'package:photoflow/firebase_options.dart';
+import 'package:photoflow/screen/laddingscreen.dart';
 import 'package:photoflow/style/themedata.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  runApp(DependencyInjector(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -16,7 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData light = lightTheme();
-
+    final ThemeData dark = darkTheme();
     return MaterialApp(
       title: 'Flutter Demo',
       localizationsDelegates: const [
@@ -26,15 +31,13 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: [
         const Locale('pt', 'BR'), // Português do Brasil
-        // Adicione outros locales que seu app suportará aqui, se houver
-        // const Locale('en', 'US'), // Inglês, por exemplo
       ],
       locale: Locale('pt', 'BR'),
       theme: light, // Tema claro como padrão
-      // darkTheme: darkTheme, // Tema escuro
+      darkTheme: dark, // Tema escuro
       themeMode: ThemeMode
           .system, // Ou ThemeMode.light, ThemeMode.dark, ou controle com um provider
-      home: MainScreen(),
+      home: LandingScreen(),
     );
   }
 }

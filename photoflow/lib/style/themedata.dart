@@ -28,6 +28,61 @@ class AppColors {
   static const Color info = Color.fromARGB(255, 52, 152, 219);
 }
 
+class AppDarkColors {
+  // Primary Colors
+  static const Color primary = Color.fromARGB(255, 26, 73, 128);
+  static const Color primaryLight = Color.fromARGB(255, 45, 92, 153);
+  static const Color primaryDark = Color.fromARGB(255, 14, 42, 77);
+  static const Color surface = Color.fromARGB(255, 18, 28, 46);
+
+  // Accent Colors
+  static const Color accent1 = Color.fromARGB(255, 91, 157, 241);
+  static const Color accent2 = Color.fromARGB(255, 255, 159, 122);
+  static const Color accent3 = Color.fromARGB(255, 48, 216, 237);
+  static const Color accent4 = Color.fromARGB(255, 255, 213, 79);
+
+  // Neutral Colors
+  static const Color background = Color.fromARGB(255, 18, 18, 18);
+  static const Color surfaceVariant = Color.fromARGB(255, 30, 30, 30);
+  static const Color gray700 = Color.fromARGB(255, 66, 66, 66);
+  static const Color gray400 = Color.fromARGB(255, 160, 160, 160);
+  static const Color white = Color.fromARGB(255, 224, 224, 224);
+
+  // Semantic Colors
+  static const Color success = Color.fromARGB(255, 46, 224, 125);
+  static const Color warning = Color.fromARGB(255, 255, 183, 77);
+  static const Color danger = Color.fromARGB(255, 255, 82, 82);
+  static const Color info = Color.fromARGB(255, 79, 195, 247);
+}
+
+ThemeData darkTheme() {
+  return ThemeData.dark().copyWith(
+    useMaterial3: false,
+    primaryColor: AppDarkColors.primary,
+    scaffoldBackgroundColor: AppDarkColors.background,
+    appBarTheme: AppBarTheme(
+      backgroundColor: AppDarkColors.primary,
+      foregroundColor: AppDarkColors.white,
+    ),
+    colorScheme: ColorScheme.dark(
+      primary: AppDarkColors.primary,
+      secondary: AppDarkColors.accent3,
+      error: AppDarkColors.danger,
+      surface: AppDarkColors.surface,
+      onSurface: AppDarkColors.white,
+    ),
+    cardColor: AppDarkColors.surfaceVariant,
+    dialogBackgroundColor: AppDarkColors.surfaceVariant,
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color.fromARGB(255, 71, 121, 233),
+        foregroundColor: AppDarkColors.white,
+      ),
+    ),
+    // Add more theme customizations as needed
+  );
+}
+
 // Example theme implementation
 ThemeData lightTheme() {
   return ThemeData(
@@ -45,7 +100,7 @@ ThemeData lightTheme() {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.accent3,
+        backgroundColor: const Color.fromARGB(255, 71, 121, 233),
         foregroundColor: AppColors.white,
       ),
     ),

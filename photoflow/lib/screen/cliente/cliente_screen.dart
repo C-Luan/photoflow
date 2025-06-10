@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 // Certifique-se de que _StatusChip e _AddEditClientDialog estejam definidos
 // (código para eles será fornecido abaixo ou já existe no seu projeto)
@@ -12,8 +11,7 @@ class ClientsScreen extends StatefulWidget {
 }
 
 class _ClientsScreenState extends State<ClientsScreen> {
-  String _searchText = '';
-  List<String> _activeFilters = [
+  final List<String> _activeFilters = [
     "Status: Ativo",
     "Categoria: Varejo"
   ]; // Exemplo
@@ -69,7 +67,6 @@ class _ClientsScreenState extends State<ClientsScreen> {
   }
 
   void _updatePaginatedClients() {
-    // TODO: Aplicar busca (_searchText) e filtros (_activeFilters) em _allClients antes de paginar
     final startIndex = (_currentPage - 1) * _rowsPerPage;
     final endIndex = startIndex + _rowsPerPage;
     setState(() {
@@ -102,9 +99,8 @@ class _ClientsScreenState extends State<ClientsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = Theme.of(context).primaryColor; // Ex: Roxo/Azul
-    final Color onPrimaryColor =
-        Theme.of(context).colorScheme.onPrimary; // Branco
+// Ex: Roxo/Azul
+// Branco
 
     return Scaffold(
       // Usar a cor de fundo do tema geral, que deve ser um cinza claro
@@ -122,7 +118,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                   'Cadastro de Clientes',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.black87, // Cor mais escura para o título
+                        // / Cor mais escura para o título
                       ),
                 ),
                 ElevatedButton.icon(
@@ -130,8 +126,6 @@ class _ClientsScreenState extends State<ClientsScreen> {
                   label: const Text('Novo Cliente'),
                   onPressed: () => _showAddEditClientDialog(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
-                    foregroundColor: onPrimaryColor,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 16), // Botão maior
                     shape: RoundedRectangleBorder(
@@ -146,7 +140,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
                 elevation: 1.5, // Sombra sutil
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0)),
-                color: Colors.white, // Card explicitamente branco
+                // Card explicitamente branco
                 clipBehavior: Clip.antiAlias,
                 child: Column(
                   children: [
@@ -177,20 +171,17 @@ class _ClientsScreenState extends State<ClientsScreen> {
               child: TextField(
                 decoration: InputDecoration(
                   hintText: 'Buscar clientes...',
-                  prefixIcon:
-                      Icon(Icons.search, size: 22, color: Colors.grey.shade600),
-                  filled: true,
-                  fillColor: Colors.grey
-                      .shade100, // Fundo levemente acinzentado para o campo
+                  prefixIcon: Icon(Icons.search, size: 22),
+                  // Fundo levemente acinzentado para o campo
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide.none, // Sem borda visível por padrão
+                    borderSide:
+                        BorderSide(width: 1.5), // Sem borda visível por padrão
                   ),
                   focusedBorder: OutlineInputBorder(
                     // Borda quando focado
                     borderRadius: BorderRadius.circular(8.0),
-                    borderSide: BorderSide(
-                        color: Theme.of(context).primaryColor, width: 1.5),
+                    borderSide: BorderSide(width: 1.5),
                   ),
                   contentPadding:
                       const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
@@ -200,15 +191,18 @@ class _ClientsScreenState extends State<ClientsScreen> {
             ),
             const SizedBox(width: 16),
             OutlinedButton.icon(
-              icon: Icon(Icons.filter_list_alt,
-                  size: 20, color: Colors.grey.shade700),
-              label: Text('Filtros',
-                  style: TextStyle(color: Colors.grey.shade700)),
+              icon: Icon(
+                Icons.filter_list_alt,
+                size: 20,
+              ),
+              label: Text(
+                'Filtros',
+              ),
               onPressed: () {/* TODO: Abrir modal de filtros */},
               style: OutlinedButton.styleFrom(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                side: BorderSide(color: Colors.grey.shade300),
+                side: BorderSide(),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
               ),
@@ -224,24 +218,18 @@ class _ClientsScreenState extends State<ClientsScreen> {
                 .map((filter) => Chip(
                       label: Text(filter,
                           style: TextStyle(
-                              fontSize: 12.5,
-                              color: Theme.of(context).primaryColorDark)),
+                            fontSize: 12.5,
+                          )),
                       onDeleted: () {/* TODO: Remover filtro */},
-                      deleteIcon: Icon(Icons.close,
-                          size: 16,
-                          color: Theme.of(context)
-                              .primaryColorDark
-                              .withOpacity(0.7)),
-                      backgroundColor:
-                          Theme.of(context).primaryColor.withOpacity(0.1),
+                      deleteIcon: Icon(
+                        Icons.close,
+                        size: 16,
+                      ),
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 2),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          side: BorderSide(
-                              color: Theme.of(context)
-                                  .primaryColor
-                                  .withOpacity(0.3))),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
                     ))
                 .toList(),
           ),
@@ -271,10 +259,9 @@ class _ClientsScreenState extends State<ClientsScreen> {
     // Ex: Soma dos flex: 3+4+2+2+2+2+3 = 18. Se cada unidade flex ~70px, 18*70 = 1260.
     const double totalTableWidth = 1300.0;
 
-    final TextStyle headerStyle = TextStyle(
-        fontSize: 12, fontWeight: FontWeight.w600, color: Colors.grey.shade600);
-    final TextStyle cellStyle =
-        TextStyle(fontSize: 13, color: Colors.grey.shade800);
+    final TextStyle headerStyle =
+        TextStyle(fontSize: 12, fontWeight: FontWeight.w600);
+    final TextStyle cellStyle = TextStyle(fontSize: 13);
     const EdgeInsets cellPadding = EdgeInsets.symmetric(
         horizontal: 8.0, vertical: 0); // Padding para cada célula
 
@@ -304,7 +291,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
             Container(
               padding: const EdgeInsets.symmetric(
                   vertical: 12.0), // Padding vertical para a linha do cabeçalho
-              color: Colors.grey.shade50,
+
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: SizedBox(
@@ -520,7 +507,7 @@ class _ClientsScreenState extends State<ClientsScreen> {
 class _AddEditClientDialog extends StatefulWidget {
   final Map<String, dynamic>? client; // Cliente existente para edição
 
-  const _AddEditClientDialog({super.key, this.client});
+  const _AddEditClientDialog({this.client});
 
   @override
   State<_AddEditClientDialog> createState() => _AddEditClientDialogState();
@@ -635,9 +622,9 @@ class _AddEditClientDialogState extends State<_AddEditClientDialog> {
                   : [],
             ),
             style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey.shade700),
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
           ),
           const SizedBox(height: 6),
           TextFormField(
@@ -646,18 +633,18 @@ class _AddEditClientDialogState extends State<_AddEditClientDialog> {
               hintText: hintText,
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey.shade300)),
+                  borderSide: BorderSide()),
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey.shade300)),
+                  borderSide: BorderSide()),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(
                       color: Theme.of(context).primaryColor, width: 1.5)),
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-              filled: true,
-              fillColor: Colors.white,
+              // filled: true,
+              // fillColor: Colors.white,
             ),
             keyboardType: keyboardType,
             maxLines: maxLines,
@@ -707,19 +694,16 @@ class _AddEditClientDialogState extends State<_AddEditClientDialog> {
             decoration: InputDecoration(
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey.shade300)),
+                  borderSide: BorderSide()),
               enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey.shade300)),
+                  borderSide: BorderSide()),
               focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor, width: 1.5)),
+                  borderSide: BorderSide()),
               contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 14), // Ajustado para alinhar com TextFormField
-              filled: true,
-              fillColor: Colors.white,
             ),
             value: value,
             items: items.map((String item) {
@@ -753,10 +737,9 @@ class _AddEditClientDialogState extends State<_AddEditClientDialog> {
   Widget build(BuildContext context) {
     final bool isEditing = widget.client != null;
     final Color primaryColor = Theme.of(context).primaryColor;
-    final Color onPrimaryColor = Theme.of(context).colorScheme.onPrimary;
 
     return Dialog(
-      backgroundColor: Colors.white,
+      // backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       insetPadding: const EdgeInsets.symmetric(
           horizontal: 20.0,
@@ -937,18 +920,14 @@ class _AddEditClientDialogState extends State<_AddEditClientDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   TextButton(
-                    child:
-                        const Text('Cancelar', style: TextStyle(fontSize: 14)),
                     onPressed: () => Navigator.of(context).pop(),
                     style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 12)),
+                    child: Text('Cancelar', style: TextStyle(fontSize: 14)),
                   ),
                   const SizedBox(width: 10),
                   ElevatedButton(
-                    child: Text(
-                        isEditing ? 'Salvar Alterações' : 'Salvar Cliente',
-                        style: TextStyle(color: onPrimaryColor, fontSize: 14)),
                     onPressed: _salvarCliente,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryColor,
@@ -957,6 +936,9 @@ class _AddEditClientDialogState extends State<_AddEditClientDialog> {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8)),
                     ),
+                    child: Text(
+                        isEditing ? 'Salvar Alterações' : 'Salvar Cliente',
+                        style: TextStyle(fontSize: 14)),
                   ),
                 ],
               ),
@@ -970,7 +952,7 @@ class _AddEditClientDialogState extends State<_AddEditClientDialog> {
 
 class _StatusChip extends StatelessWidget {
   final String status;
-  const _StatusChip({super.key, required this.status});
+  const _StatusChip({required this.status});
 
   @override
   Widget build(BuildContext context) {

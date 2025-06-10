@@ -1,15 +1,28 @@
-class Usuario {
-  String? nome;
-  String? telefone;
-  String email;
+class UserModel {
+  final String uid;
+  final String displayName;
+  final String email;
+  final String? phoneNumber;
+  final String photoUrl;
+  final bool isEmailVerified;
 
-  Usuario({this.nome, this.telefone, required this.email});
+  UserModel({
+    required this.uid,
+    required this.displayName,
+    required this.email,
+    required this.photoUrl,
+    required this.isEmailVerified,
+    this.phoneNumber,
+  });
 
-  factory Usuario.fromJson(Map<String, dynamic> json) {
-    return Usuario(
-      nome: json['nome'] as String?,
-      telefone: json['telefone'] as String?,
-      email: json['email'] as String,
+  factory UserModel.fromFirebaseUserMap(Map<String, dynamic> map) {
+    return UserModel(
+      uid: map['uid'],
+      displayName: map['displayName'],
+      email: map['email'],
+      phoneNumber: map['phoneNumber'],
+      photoUrl: map['photoURL'],
+      isEmailVerified: map['isEmailVerified'],
     );
   }
 }
