@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
       theme: light, // Tema claro como padrão
       darkTheme: dark, // Tema escuro
       themeMode: ThemeMode
-          .system, // Ou ThemeMode.light, ThemeMode.dark, ou controle com um provider
+          .light, // Ou ThemeMode.light, ThemeMode.dark, ou controle com um provider
       home: LandingScreen(),
     );
   }

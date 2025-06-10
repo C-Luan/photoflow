@@ -1,15 +1,20 @@
 // File: lib/panels/dialogs/novo_agendamento_dialog.dart
 
 // Flutter imports:
+import 'package:dropdown_search/dropdown_search.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 // Package imports:
 import 'package:intl/intl.dart';
+import 'package:photoflow/constants/constants.dart';
 
 // Project imports:
 import 'package:photoflow/models/agendamento/agendamento.dart';
 import 'package:photoflow/models/tiposervico/categoria.dart';
 import 'package:photoflow/models/tiposervico/tiposervico.dart';
+import 'package:photoflow/services/agendamento/create_agendamento_service.dart';
+import 'package:photoflow/services/categoria/get_categorias_service.dart';
 
 class NovoAgendamentoDialog extends StatefulWidget {
   final List<CategoriaServico> categorias;
@@ -38,6 +43,9 @@ class _NovoAgendamentoDialogState extends State<NovoAgendamentoDialog> {
   final _dataController = TextEditingController();
   final _horaController = TextEditingController();
   final _valorController = TextEditingController();
+
+  final _telefoneController = TextEditingController();
+  final _emailController = TextEditingController();
   final _observacoesController = TextEditingController();
 
   // Estado para os dropdowns e seletores
@@ -67,19 +75,6 @@ class _NovoAgendamentoDialogState extends State<NovoAgendamentoDialog> {
     _valorController.dispose();
     _observacoesController.dispose();
     super.dispose();
-  }
-
-  // Função para lidar com a mudança de categoria
-  void _onCategoriaChanged(CategoriaServico? newValue) {
-    setState(() {
-      _categoriaSelecionada = newValue;
-      _tipoServicoSelecionado = null; // Reseta o tipo de serviço
-      _tiposServicoFiltrados.clear();
-      if (newValue != null) {
-        // Filtra a lista de serviços com base na categoria selecionada
-        _tiposServicoFiltrados = _categoriaSelecionada!.tiposServicos;
-      }
-    });
   }
 
   // Função para abrir o seletor de data
@@ -121,7 +116,7 @@ class _NovoAgendamentoDialogState extends State<NovoAgendamentoDialog> {
   }
 
   // Função para validar e salvar o formulário
-  void _saveForm() {
+  Future<void> _saveForm() async {
     // Verifica se o formulário é válido
     if (_formKey.currentState?.validate() ?? false) {
       // Combina a data e a hora selecionadas em um único objeto DateTime
@@ -135,18 +130,16 @@ class _NovoAgendamentoDialogState extends State<NovoAgendamentoDialog> {
 
       // Cria o novo objeto Agendamento
       final novoAgendamento = Agendamento(
-        id: DateTime.now().millisecondsSinceEpoch.toString(), // ID temporário
-        nome: _nomeClienteController.text,
-        email: '', // TODO: Adicionar campo de email se necessário
-        telefone: '', // TODO: Adicionar campo de telefone se necessário
-        data: dataHoraFinal,
-        servico: _tipoServicoSelecionado!.nome,
-        // Você pode querer salvar mais detalhes no seu modelo, como:
-        // categoria: _categoriaSelecionada!.nome,
-        // valor: double.tryParse(_valorController.text.replaceAll(',', '.')) ?? 0.0,
-        // observacoes: _observacoesController.text,
-      );
-
+          nome: _nomeClienteController.text,
+          email: _emailController.text,
+          telefone: _telefoneController.text,
+          data: dataHoraFinal,
+          servico: _tipoServicoSelecionado!.id!,
+          observacoes: _observacoesController.text);
+      await createAgendamentoService(data: novoAgendamento.toMap())
+          .then((onValue) {
+        print(onValue!.data.toString());
+      });
       // Chama o callback onSave para passar o novo agendamento de volta
       widget.onSave(novoAgendamento);
 
@@ -169,165 +162,212 @@ class _NovoAgendamentoDialogState extends State<NovoAgendamentoDialog> {
           ),
         ],
       ),
-      content: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              // --- Campo Nome do Cliente ---
-              const Text("Nome do Cliente",
-                  style: TextStyle(fontWeight: FontWeight.w500)),
-              const SizedBox(height: 4),
-              TextFormField(
-                controller: _nomeClienteController,
-                decoration: const InputDecoration(
-                    border: OutlineInputBorder(), hintText: "Nome completo"),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Nome é obrigatório.' : null,
-              ),
-              const SizedBox(height: 16),
-
-              // --- Campos Data e Hora ---
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("Data",
-                            style: TextStyle(fontWeight: FontWeight.w500)),
-                        const SizedBox(height: 4),
-                        TextFormField(
-                          controller: _dataController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: 'dd/mm/aaaa',
-                            suffixIcon: Icon(Icons.calendar_today),
-                          ),
-                          readOnly: true,
-                          onTap: _pickDate,
-                          validator: (v) => v == null || v.isEmpty
-                              ? 'Data é obrigatória.'
-                              : null,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("Hora",
-                            style: TextStyle(fontWeight: FontWeight.w500)),
-                        const SizedBox(height: 4),
-                        TextFormField(
-                          controller: _horaController,
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                            hintText: '--:--',
-                            suffixIcon: Icon(Icons.access_time),
-                          ),
-                          readOnly: true,
-                          onTap: _pickTime,
-                          validator: (v) => v == null || v.isEmpty
-                              ? 'Hora é obrigatória.'
-                              : null,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // --- Dropdown de Categoria ---
-              const Text("Categoria",
-                  style: TextStyle(fontWeight: FontWeight.w500)),
-              const SizedBox(height: 4),
-              DropdownButtonFormField<CategoriaServico>(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "Selecione uma categoria",
-                ),
-                value: _categoriaSelecionada,
-                isExpanded: true,
-                items: widget.categorias.map((cat) {
-                  return DropdownMenuItem<CategoriaServico>(
-                    value: cat,
-                    child: Text(cat.nome, overflow: TextOverflow.ellipsis),
-                  );
-                }).toList(),
-                onChanged: _onCategoriaChanged,
-                validator: (value) =>
-                    value == null ? 'Selecione uma categoria.' : null,
-              ),
-              const SizedBox(height: 16),
-
-              // --- Dropdown de Tipo de Serviço ---
-              const Text("Tipo de Serviço",
-                  style: TextStyle(fontWeight: FontWeight.w500)),
-              const SizedBox(height: 4),
-              DropdownButtonFormField<Tiposervico>(
-                decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: "Selecione um tipo de serviço"),
-                value: _tipoServicoSelecionado,
-                isExpanded: true,
-                disabledHint: _categoriaSelecionada == null
-                    ? const Text("Selecione uma categoria primeiro")
-                    : const Text("Nenhum serviço nesta categoria"),
-                items: _tiposServicoFiltrados.map((ts) {
-                  return DropdownMenuItem<Tiposervico>(
-                    value: ts,
-                    child: Text(ts.nome, overflow: TextOverflow.ellipsis),
-                  );
-                }).toList(),
-                onChanged: _tiposServicoFiltrados.isEmpty
-                    ? null
-                    : (newValue) =>
-                        setState(() => _tipoServicoSelecionado = newValue),
-                validator: (value) =>
-                    value == null ? 'Selecione um tipo de serviço.' : null,
-              ),
-              const SizedBox(height: 16),
-
-              // --- Campo Valor (Opcional) ---
-              const Text("Valor (R\$)",
-                  style: TextStyle(fontWeight: FontWeight.w500)),
-              const SizedBox(height: 4),
-              TextFormField(
-                  controller: _valorController,
+      content: SizedBox(
+        width: 600,
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                // --- Campo Nome do Cliente ---
+                const Text("Nome do Cliente",
+                    style: TextStyle(fontWeight: FontWeight.w500)),
+                const SizedBox(height: 4),
+                TextFormField(
+                  controller: _nomeClienteController,
                   decoration: const InputDecoration(
-                      border: OutlineInputBorder(), hintText: "0,00"),
+                      border: OutlineInputBorder(), hintText: "Nome completo"),
+                  validator: (v) =>
+                      v == null || v.isEmpty ? 'Nome é obrigatório.' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // --- Campos Data e Hora ---
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("Data",
+                              style: TextStyle(fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            controller: _dataController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: 'dd/mm/aaaa',
+                              suffixIcon: Icon(Icons.calendar_today),
+                            ),
+                            readOnly: true,
+                            onTap: _pickDate,
+                            validator: (v) => v == null || v.isEmpty
+                                ? 'Data é obrigatória.'
+                                : null,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text("Hora",
+                              style: TextStyle(fontWeight: FontWeight.w500)),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            controller: _horaController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              hintText: '--:--',
+                              suffixIcon: Icon(Icons.access_time),
+                            ),
+                            readOnly: true,
+                            onTap: _pickTime,
+                            validator: (v) => v == null || v.isEmpty
+                                ? 'Hora é obrigatória.'
+                                : null,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // --- Dropdown de Categoria ---
+                const Text("Categoria",
+                    style: TextStyle(fontWeight: FontWeight.w500)),
+                const SizedBox(height: 4),
+                DropdownSearch<CategoriaServico>(
+               
+                  compareFn: (item, selectedItem) =>
+                      item.nome ==
+                      selectedItem.nome, // Or item.nome == selectedItem.nome
+
+                  onChanged: (value) {
+                    _categoriaSelecionada = value;
+                    setState(() {
+                      _tiposServicoFiltrados =
+                          _categoriaSelecionada!.tiposServicos;
+                    });
+                  },
+                  selectedItem: _categoriaSelecionada,
+                  itemAsString: (item) => item.nome,
+                  items: (filter, loadProps) async {
+                    List<CategoriaServico> categorias = [];
+                    String? token =
+                        await FirebaseAuth.instance.currentUser!.getIdToken();
+                    await getCategoriasService(token: token ?? '')
+                        .then((onValue) {
+                      if (onValue != null && onValue.statusCode == 200) {
+                        for (var element in onValue.data) {
+                          categorias.add(CategoriaServico.fromJson(element));
+                        }
+                      }
+                    });
+                    return categorias;
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                // --- Dropdown de Tipo de Serviço ---
+                const Text("Tipo de Serviço",
+                    style: TextStyle(fontWeight: FontWeight.w500)),
+                const SizedBox(height: 4),
+                DropdownButtonFormField<Tiposervico>(
+                  decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Selecione um tipo de serviço"),
+                  value: _tipoServicoSelecionado,
+                  isExpanded: true,
+                  disabledHint: _categoriaSelecionada == null
+                      ? const Text("Selecione uma categoria primeiro")
+                      : const Text("Nenhum serviço nesta categoria"),
+                  items: _tiposServicoFiltrados.map((ts) {
+                    return DropdownMenuItem<Tiposervico>(
+                      value: ts,
+                      child: Text(ts.nome, overflow: TextOverflow.ellipsis),
+                    );
+                  }).toList(),
+                  onChanged: _tiposServicoFiltrados.isEmpty
+                      ? null
+                      : (newValue) =>
+                          setState(() => _tipoServicoSelecionado = newValue),
+                  validator: (value) =>
+                      value == null ? 'Selecione um tipo de serviço.' : null,
+                ),
+                const SizedBox(height: 16),
+
+                // --- Campo Valor (Opcional) ---
+                const Text("Email",
+                    style: TextStyle(fontWeight: FontWeight.w500)),
+                const SizedBox(height: 4),
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "contato@email.com"),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
-                  validator: (v) {
-                    if (v != null &&
-                        v.isNotEmpty &&
-                        num.tryParse(v.replaceAll(',', '.')) == null) {
-                      return 'Valor inválido.';
-                    }
-                    return null;
-                  }),
-              const SizedBox(height: 16),
-
-              // --- Campo Observações (Opcional) ---
-              const Text("Observações",
-                  style: TextStyle(fontWeight: FontWeight.w500)),
-              const SizedBox(height: 4),
-              TextFormField(
-                controller: _observacoesController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "Detalhes adicionais...",
                 ),
-                maxLines: 3,
-              ),
-            ],
+                const SizedBox(height: 16),
+
+                // --- Campo Valor (Opcional) ---
+                const Text("Contato",
+                    style: TextStyle(fontWeight: FontWeight.w500)),
+                const SizedBox(height: 4),
+                TextFormField(
+                  controller: _telefoneController,
+                  decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "(91) 99999-9999"),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [numberphoneFormatter],
+                ),
+                const SizedBox(height: 16),
+
+                // --- Campo Valor (Opcional) ---
+                const Text("Valor (R\$)",
+                    style: TextStyle(fontWeight: FontWeight.w500)),
+                const SizedBox(height: 4),
+                TextFormField(
+                    controller: _valorController,
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(), hintText: "00.00"),
+                    inputFormatters: [PosInputFormatter()],
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    validator: (v) {
+                      if (v != null &&
+                          v.isNotEmpty &&
+                          num.tryParse(v.replaceAll(',', '.')) == null) {
+                        return 'Valor inválido.';
+                      }
+                      return null;
+                    }),
+                const SizedBox(height: 16),
+
+                // --- Campo Observações (Opcional) ---
+                const Text("Observações",
+                    style: TextStyle(fontWeight: FontWeight.w500)),
+                const SizedBox(height: 4),
+                TextFormField(
+                  controller: _observacoesController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    hintText: "Detalhes adicionais...",
+                  ),
+                  maxLines: 3,
+                ),
+              ],
+            ),
           ),
         ),
       ),

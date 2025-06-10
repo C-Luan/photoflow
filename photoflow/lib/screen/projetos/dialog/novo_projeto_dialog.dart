@@ -1,10 +1,15 @@
+import 'package:dropdown_search/dropdown_search.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:intl/intl.dart';
 import 'package:photoflow/models/cliente/cliente.dart'; // Ajuste o caminho se necessário
 import 'package:photoflow/models/projeto/etapa_projeto.dart'; // Ajuste o caminho se necessário
 import 'package:photoflow/models/projeto/projeto.dart'; // Ajuste o caminho se necessário
 import 'package:photoflow/models/tiposervico/categoria.dart'; // Ajuste o caminho se necessário
-import 'package:photoflow/models/tiposervico/tiposervico.dart'; // Ajuste o caminho se necessário
+import 'package:photoflow/models/tiposervico/tiposervico.dart';
+
+import '../../../services/categoria/get_categorias_service.dart'; // Ajuste o caminho se necessário
 
 class NovoProjetoDialog extends StatefulWidget {
   final List<Tiposervico> tiposDeServicoDisponiveis;
@@ -25,8 +30,12 @@ class _NovoProjetoDialogState extends State<NovoProjetoDialog> {
   final _nomeClienteController = TextEditingController();
   final _dataInicioController = TextEditingController();
   final _prazoController = TextEditingController();
+  final _valorController = TextEditingController();
   final _observacoesController = TextEditingController();
+  CategoriaServico? _categoriaSelecionada;
+  Tiposervico? _tipoServicoSelecionado;
 
+  List<Tiposervico> _tiposServicoFiltrados = [];
   Tiposervico? _selectedTipoServico;
   EtapaProjeto? _selectedEtapaProjeto;
   DateTime? _selectedDataInicio;
@@ -167,26 +176,63 @@ class _NovoProjetoDialogState extends State<NovoProjetoDialog> {
                   ),
                   SizedBox(height: _spacerHeightMedium),
                   _buildFormFieldTitle("Tipo de Ensaio/Serviço"),
-                  DropdownButtonFormField<Tiposervico>(
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "Selecione um tipo"),
-                    value: _selectedTipoServico,
-                    isExpanded: true,
-                    items: widget.tiposDeServicoDisponiveis
-                        .map((Tiposervico tipo) {
-                      return DropdownMenuItem<Tiposervico>(
-                        value: tipo,
-                        child: Text(tipo.nome, overflow: TextOverflow.ellipsis),
-                      );
-                    }).toList(),
-                    onChanged: (Tiposervico? newValue) {
+                  DropdownSearch<CategoriaServico>(
+                    compareFn: (item, selectedItem) =>
+                        item.nome ==
+                        selectedItem.nome, // Or item.nome == selectedItem.nome
+
+                    onChanged: (value) {
+                      _categoriaSelecionada = value;
                       setState(() {
-                        _selectedTipoServico = newValue;
+                        _tiposServicoFiltrados =
+                            _categoriaSelecionada!.tiposServicos;
                       });
                     },
+                    selectedItem: _categoriaSelecionada,
+                    itemAsString: (item) => item.nome,
+                    items: (filter, loadProps) async {
+                      List<CategoriaServico> categorias = [];
+                      String? token =
+                          await FirebaseAuth.instance.currentUser!.getIdToken();
+                      await getCategoriasService(token: token ?? '')
+                          .then((onValue) {
+                        if (onValue != null && onValue.statusCode == 200) {
+                          for (var element in onValue.data) {
+                            categorias.add(CategoriaServico.fromJson(element));
+                          }
+                        }
+                      });
+                      return categorias;
+                    },
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  // --- Dropdown de Tipo de Serviço ---
+                  const Text("Tipo de Serviço",
+                      style: TextStyle(fontWeight: FontWeight.w500)),
+                  const SizedBox(height: 4),
+                  DropdownButtonFormField<Tiposervico>(
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: "Selecione um tipo de serviço"),
+                    value: _tipoServicoSelecionado,
+                    isExpanded: true,
+                    disabledHint: _categoriaSelecionada == null
+                        ? const Text("Selecione uma categoria primeiro")
+                        : const Text("Nenhum serviço nesta categoria"),
+                    items: _tiposServicoFiltrados.map((ts) {
+                      return DropdownMenuItem<Tiposervico>(
+                        value: ts,
+                        child: Text(ts.nome, overflow: TextOverflow.ellipsis),
+                      );
+                    }).toList(),
+                    onChanged: _tiposServicoFiltrados.isEmpty
+                        ? null
+                        : (newValue) =>
+                            setState(() => _tipoServicoSelecionado = newValue),
                     validator: (value) =>
-                        value == null ? 'Campo obrigatório.' : null,
+                        value == null ? 'Selecione um tipo de serviço.' : null,
                   ),
                   SizedBox(height: _spacerHeightMedium),
                   _buildFormFieldTitle("Data de Início"),
@@ -226,7 +272,8 @@ class _NovoProjetoDialogState extends State<NovoProjetoDialog> {
                   ),
                   _buildFormFieldTitle("Valor do Projeto (R\$)"),
                   TextFormField(
-                    controller: _nomeClienteController,
+                    controller: _valorController,
+                    inputFormatters: [PosInputFormatter()],
                     decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: "Digite o valor do projeto"),

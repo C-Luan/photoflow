@@ -26,6 +26,7 @@ class CategoriaServico {
     //    Usamos 'as List? ?? []' para garantir que, se a chave não existir ou for nula,
     //    teremos uma lista vazia em vez de um erro.
     var tiposJsonList = json['tiposServico'] as List? ?? [];
+    log(json.toString());
 
     // 2. Mapeia a lista de JSON para uma lista de objetos Tiposervico.
     //    Para cada 'item' na lista JSON, ele chama 'Tiposervico.fromJson'.
@@ -35,7 +36,7 @@ class CategoriaServico {
 
     // 3. Retorna a instância de CategoriaServico com a lista já convertida.
     return CategoriaServico(
-      id: json['id'] as int,
+      id: json['id'],
       nome: json['nome'] as String,
       descricao: json['descricao'] as String,
       tiposServicos: tiposServicosList, // Usa a lista processada.

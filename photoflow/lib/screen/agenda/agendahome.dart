@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 // Package imports:
 import 'package:intl/intl.dart';
+import 'package:photoflow/services/agendamento/get_agendamento_service.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart' as sfc;
 import 'package:table_calendar/table_calendar.dart' as tc;
 
@@ -82,7 +83,7 @@ class AgendaPanelState extends State<AgendaPanel> {
   @override
   void initState() {
     super.initState();
-    _fetchCategoriasDoServidor();
+    // _fetchCategoriasDoServidor();
     // _loadCategoriasETiposServico();
     _loadAppointments();
     _tcFocusedDay = _currentlySelectedDate;
@@ -92,36 +93,20 @@ class AgendaPanelState extends State<AgendaPanel> {
 
   // --- LÓGICA DE NEGÓCIOS E MANIPULAÇÃO DE DADOS ---
 
-  void _loadAppointments() {
+  Future<void> _loadAppointments() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final tomorrow = DateTime(now.year, now.month, now.day + 1);
-
+    await getAgendamentoService().then((onValue) {
+      if (onValue != null && onValue.statusCode == 200) {
+        // log(onValue.data.toString());
+        for (var element in onValue.data['data']) {
+          _allAgendamentos.add(Agendamento.fromJson(element));
+        }
+      }
+    });
     // Simulação de dados. Substitua pela sua fonte de dados real.
     setState(() {
-      _allAgendamentos = [
-        Agendamento(
-            id: '1',
-            nome: 'Maria Silva',
-            email: 'm@s.com',
-            telefone: '111',
-            data: DateTime(today.year, today.month, today.day, 10, 0),
-            servico: 'Ensaio Externo'),
-        Agendamento(
-            id: '2',
-            nome: 'Joana e Pedro',
-            email: 'j@p.com',
-            telefone: '222',
-            data: DateTime(today.year, today.month, today.day, 15, 30),
-            servico: 'Cobertura Casamento'),
-        Agendamento(
-            id: '3',
-            nome: 'Empresa X',
-            email: 'e@x.com',
-            telefone: '333',
-            data: DateTime(tomorrow.year, tomorrow.month, tomorrow.day, 14, 0),
-            servico: 'Vídeo Institucional'),
-      ];
       _prepareTableCalendarEvents();
       _updateSelectedDayAppointmentsList(_currentlySelectedDate);
     });
@@ -202,7 +187,6 @@ class AgendaPanelState extends State<AgendaPanel> {
   }
 
   void _editAppointment(Agendamento agendamento) {
-    // TODO: Implementar lógica de edição. Pode abrir o `NovoAgendamentoDialog` preenchido.
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Ação 'Editar' para: ${agendamento.nome}")),
     );

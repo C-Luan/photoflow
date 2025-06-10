@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:photoflow/models/tiposervico/categoria.dart';
 
 class Tiposervico {
@@ -19,10 +21,11 @@ class Tiposervico {
   });
 
   factory Tiposervico.fromJson(Map<String, dynamic> json) {
+    log(json.toString());
     return Tiposervico(
       id: json['id'],
       nome: json['nome'],
-      categoriaId: json['categoria_id'],
+      categoriaId: json['categoriaId'],
       descricao: json['descricao'],
       createdAt: json['created_at'],
       updatedAt: json['updated_at'],

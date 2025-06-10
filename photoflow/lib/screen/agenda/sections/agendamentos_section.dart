@@ -47,7 +47,7 @@ class _AgendamentosSectionState extends State<AgendamentosSection> {
     setState(() {
       _filteredAgendamentos = widget.agendamentos.where((ag) {
         return ag.nome.toLowerCase().contains(query) ||
-            ag.servico.toLowerCase().contains(query);
+            ag.tipoServico!.nome.toLowerCase().contains(query);
       }).toList();
     });
   }
@@ -170,7 +170,7 @@ class _AgendamentosSectionState extends State<AgendamentosSection> {
                                 DataCell(Text(DateFormat('HH:mm')
                                     .format(agendamento.data))),
                                 DataCell(Text(agendamento.nome)),
-                                DataCell(Text(agendamento.servico)),
+                                DataCell(Text(agendamento.tipoServico!.nome)),
                                 DataCell(Text("N/A")), // Placeholder
                                 DataCell(Text("R\$ --,--")), // Placeholder
                                 DataCell(Row(
@@ -181,14 +181,16 @@ class _AgendamentosSectionState extends State<AgendamentosSection> {
                                           color: Colors.blueAccent, size: 20),
                                       tooltip: "Editar",
                                       splashRadius: 20,
-                                      onPressed: () => widget.onEdit(agendamento),
+                                      onPressed: () =>
+                                          widget.onEdit(agendamento),
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.delete_outline,
                                           color: Colors.redAccent, size: 20),
                                       tooltip: "Excluir",
                                       splashRadius: 20,
-                                      onPressed: () => widget.onDelete(agendamento),
+                                      onPressed: () =>
+                                          widget.onDelete(agendamento),
                                     ),
                                   ],
                                 )),

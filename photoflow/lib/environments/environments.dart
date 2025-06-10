@@ -1,15 +1,16 @@
 class Environments {
   static const String _baseURL = 'http://localhost:3000';
-  
+
   //🔹 Endpoints de Autenticação e Usuários
   static const String login = '$_baseURL/login';
-  
+
   //🔹 Endpoints de Categorias de Serviço
-  
+
   // Usado para:
-  // POST /categorias   (criar uma nova categoria)
-  // GET /categorias    (listar todas as categorias de um usuário)
+  // POST /
+  // GET /
   static const String categorias = '$_baseURL/categorias';
+  static const String agendamentos = '$_baseURL/agendamentos';
 
   // Usado para rotas que precisam de um ID.
   // A função recebe o ID e constrói a URL dinamicamente.
