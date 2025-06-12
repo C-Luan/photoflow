@@ -988,6 +988,12 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
                     onSave: (projeto) async {
                       await createProjetoService(data: projeto.toJson())
                           .then((onValue) {
+                        showDialog(
+                            context: context,
+                            builder: (builder) {
+                              return ProjetoDetalhesDialog(
+                                  projeto: Projeto.fromJson(onValue!.data));
+                            });
                         _loadProjetos();
                       });
                     },

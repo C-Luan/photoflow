@@ -325,7 +325,7 @@ class ProjetoDetalhesDialog extends StatelessWidget {
         ],
       ),
       content: SizedBox(
-        width: isMobile ? screenWidth : 600, // Largura do conteúdo
+        width: isMobile ? screenWidth : 1000, // Largura do conteúdo
         height: isMobile
             ? MediaQuery.of(context).size.height
             : MediaQuery.of(context).size.height *
@@ -434,7 +434,12 @@ class ProjetoDetalhesDialog extends StatelessWidget {
                 final equipeWidget = Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _buildSectionTitle(context, "Equipe"),
+                      Row(
+                        children: [
+                          _buildSectionTitle(context, "Equipe"),
+                          IconButton(onPressed: () {}, icon: Icon(Icons.add))
+                        ],
+                      ),
                       if (equipeExemplo.isEmpty)
                         _buildListItem("Nenhuma equipe definida.")
                       else
@@ -464,7 +469,7 @@ class ProjetoDetalhesDialog extends StatelessWidget {
                     ]);
               }),
 
-              _buildSectionTitle(context, "Cronograma"),
+              _buildSectionTitle(context, "Timeline do projet"),
               if (cronogramaExemplo.isEmpty)
                 _buildListItem("Nenhum cronograma definido.")
               else
