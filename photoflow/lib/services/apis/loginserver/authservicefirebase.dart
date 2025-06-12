@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:dio/dio.dart';
-import 'package:photoflow/services/loginserver/authservice.dart';
+import 'package:photoflow/services/apis/loginserver/authservice.dart';
 
 class AuthServiceFirebase {
   final FirebaseAuth _auth = FirebaseAuth.instance;

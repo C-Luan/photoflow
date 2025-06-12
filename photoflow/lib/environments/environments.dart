@@ -5,18 +5,18 @@ class Environments {
   static const String login = '$_baseURL/login';
 
   //🔹 Endpoints de Categorias de Serviço
-
-  // Usado para:
-  // POST /
-  // GET /
   static const String categorias = '$_baseURL/categorias';
+  static const String clientes = '$_baseURL/clientes';
+  static const String etapaprojeto = '$_baseURL/etapaprojeto';
   static const String agendamentos = '$_baseURL/agendamentos';
 
-  // Usado para rotas que precisam de um ID.
-  // A função recebe o ID e constrói a URL dinamicamente.
-  // GET /categorias/:id    (buscar uma categoria específica)
-  // PUT /categorias/:id    (atualizar uma categoria específica)
-  // DELETE /categorias/:id (deletar uma categoria específica)
+  //🔹 Endpoints de Projetos
+  static const String projetos = '$_baseURL/projetos';
+
+  static String projetoById(String id) {
+    return '$_baseURL/projetos/$id';
+  }
+
   static String categoriaById(int id) {
     return '$_baseURL/categorias/$id';
   }

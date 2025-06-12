@@ -1,4 +1,6 @@
 // Flutter imports:
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 // Package imports:
@@ -9,10 +11,11 @@ import 'package:intl/intl.dart';
 import 'package:photoflow/models/projeto/projeto.dart';
 import 'package:photoflow/models/tiposervico/tiposervico.dart';
 import 'package:photoflow/models/tiposervico/categoria.dart';
-import 'package:photoflow/models/cliente/cliente.dart';
 import 'package:photoflow/models/projeto/etapa_projeto.dart';
 import 'package:photoflow/screen/projetos/dialog/detalhes_projetos.dart';
 import 'package:photoflow/screen/projetos/dialog/novo_projeto_dialog.dart';
+import 'package:photoflow/services/apis/projetos/create_projeto_service.dart';
+import 'package:photoflow/services/apis/projetos/get_projetos_service.dart';
 // Se NovoProjetoDialog estiver em um arquivo separado, importe-o também.
 // import 'caminho/para/seu/novo_projeto_dialog.dart';
 
@@ -68,14 +71,6 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
     "Valor"
   ];
 
-  // --- PLACEHOLDERS DE MODELO ---
-  // Remova-os e use seus imports reais.
-  // class Cliente { String nome; Cliente({required this.nome}); factory Cliente.fromJson(Map<String, dynamic> json) => Cliente(nome: json['nome'] ?? 'Cliente Desconhecido'); }
-  // class EtapaProjeto { String nome; int? id; EtapaProjeto({required this.nome, this.id}); factory EtapaProjeto.fromJson(Map<String, dynamic> json) => EtapaProjeto(nome: json['nome'] ?? 'Etapa Desconhecida', id: json['id']); }
-  // class CategoriaServico { final int id; final String nome; final String descricao; CategoriaServico({required this.id, required this.nome, required this.descricao}); factory CategoriaServico.fromJson(Map<String, dynamic> json) => CategoriaServico(id: json['id'], nome: json['nome'], descricao: json['descricao']); @override bool operator ==(Object other) => identical(this, other) || other is CategoriaServico && runtimeType == other.runtimeType && id == other.id; @override int get hashCode => id.hashCode; @override String toString() => nome;}
-  // class Tiposervico { int? id; int categoriaId; String nome; String descricao; CategoriaServico? categoria; Tiposervico({this.id, required this.categoriaId, required this.nome, required this.descricao, this.categoria}); factory Tiposervico.fromJson(Map<String, dynamic> json) => Tiposervico(id:json['id'], categoriaId: json['categoria_id'], nome: json['nome'], descricao: json['descricao'], categoria: json['categoria'] !=null ? CategoriaServico.fromJson(json['categoria']) : null); @override bool operator ==(Object other) => identical(this, other) || other is Tiposervico && runtimeType == other.runtimeType && id == other.id; @override int get hashCode => id.hashCode; @override String toString() => nome;}
-  // --- FIM DOS PLACEHOLDERS DE MODELO ---
-
   @override
   void initState() {
     super.initState();
@@ -93,236 +88,59 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
     super.dispose();
   }
 
-  void _loadProjetos() {
-    // Dados mockados existentes e novos
-    final cliente1 = Cliente(nome: "Maria Silva");
-    final cliente2 = Cliente(nome: "João Pereira");
-    final cliente3 = Cliente(nome: "Ana Costa");
-    final cliente4 = Cliente(nome: "Carlos Mendes");
-    final cliente5 = Cliente(nome: "Fernanda Lima");
-    final cliente6 = Cliente(nome: "Roberto Alves");
-    // Novos clientes
-    final cliente7 = Cliente(nome: "Beatriz Santos");
-    final cliente8 = Cliente(nome: "Lucas Oliveira");
-    final cliente9 = Cliente(nome: "Juliana Martins");
-    final cliente10 = Cliente(nome: "Ricardo Gomes");
+// CORREÇÃO: Usando async/await para garantir o carregamento antes de atualizar o estado.
+  Future<void> _loadProjetos() async {
+    try {
+      // 1. Aguarda a resposta do serviço
+      final onValue = await getProjetosService();
+      if (onValue == null || onValue.data == null) {
+        log("Serviço não retornou dados.");
+        // Limpa os dados existentes se a resposta for nula
+        if (mounted) {
+          setState(() {
+            _allProjetos = [];
+            _populateDynamicFiltersFromData(); // Irá limpar os filtros dinâmicos
+            _applyAllFilters(); // Irá aplicar sobre a lista vazia
+          });
+        }
+        return;
+      }
 
-    // final categoriaCasamento = CategoriaServico(
-    //     id: 1, nome: "Casamento", descricao: "Serviços de casamento");
-    // final categoriaEnsaio =
-    //     CategoriaServico(id: 2, nome: "Ensaio", descricao: "Ensaios diversos");
-    // final categoriaCorp = CategoriaServico(
-    //     id: 3, nome: "Corporativo", descricao: "Eventos corporativos");
-    // final categoriaProduto = CategoriaServico(
-    //     id: 4,
-    //     nome: "Produto",
-    //     descricao: "Fotografia de produtos"); // Nova categoria
+      log("Dados recebidos do servidor: ${onValue.data}");
 
-    // final tipoCasamento = Tiposervico(
-    //     id: 101,
-    //     categoriaId: 1,
-    //     nome: "Casamento Completo",
-    //     descricao: "Cobertura total",
-    //     categoria: categoriaCasamento);
-    // final tipoPreWedding = Tiposervico(
-    //     id: 201,
-    //     categoriaId: 2,
-    //     nome: "Ensaio Pré-Wedding",
-    //     descricao: "Ensaio antes do casamento",
-    //     categoria: categoriaEnsaio);
-    // final tipoGestante = Tiposervico(
-    //     id: 202,
-    //     categoriaId: 2,
-    //     nome: "Ensaio Gestante",
-    //     descricao: "Ensaio de gestante",
-    //     categoria: categoriaEnsaio);
-    // final tipoCorporativo = Tiposervico(
-    //     id: 301,
-    //     categoriaId: 3,
-    //     nome: "Evento Corporativo",
-    //     descricao: "Cobertura de evento",
-    //     categoria: categoriaCorp);
-    // final tipoAniversario = Tiposervico(
-    //     id: 102,
-    //     categoriaId: 1,
-    //     nome: "Aniversário",
-    //     descricao: "Festa de aniversário",
-    //     categoria: categoriaCasamento);
-    // final tipoEnsaioPessoal = Tiposervico(
-    //     id: 203,
-    //     categoriaId: 2,
-    //     nome: "Ensaio Pessoal",
-    //     descricao: "Retratos",
-    //     categoria: categoriaEnsaio);
-    // // Novos tipos de serviço
-    // final tipoProdutoStill = Tiposervico(
-    //     id: 401,
-    //     categoriaId: 4,
-    //     nome: "Foto Still Produto",
-    //     descricao: "Fotos de produto com fundo branco/neutro",
-    //     categoria: categoriaProduto);
-    // final tipoVideoReels = Tiposervico(
-    //     id: 204,
-    //     categoriaId: 2,
-    //     nome: "Vídeo Reels Ensaio",
-    //     descricao: "Vídeo curto para redes sociais",
-    //     categoria: categoriaEnsaio);
-    // final tipoInstitucional = Tiposervico(
-    //     id: 302,
-    //     categoriaId: 3,
-    //     nome: "Vídeo Institucional",
-    //     descricao: "Vídeo para apresentação da empresa",
-    //     categoria: categoriaCorp);
+      // 2. Processa os dados recebidos
+      final List<Projeto> projetosCarregados = [];
+      for (var i in onValue.data) {
+        try {
+          projetosCarregados.add(Projeto.fromJson(i));
+        } catch (e) {
+          log("Erro ao desserializar projeto: $i, Erro: $e");
+        }
+      }
 
-    final etapaFinalizado = EtapaProjeto(nome: "Finalizado", id: 5);
-    final etapaEmExecucao = EtapaProjeto(nome: "Em Execução", id: 3);
-    final etapaAgendado = EtapaProjeto(nome: "Agendado", id: 1);
-    final etapaPendente = EtapaProjeto(nome: "Revisão Cliente", id: 4);
-    final etapaCancelada = EtapaProjeto(
-        nome: "Planejamento",
-        id: 2); // Etapa base para um projeto que foi cancelado
-    final etapaEdicao = EtapaProjeto(nome: "Edição", id: 6); // Nova etapa
-
-    final today = DateTime.now();
-    final DateFormat mockDateFormat = DateFormat(
-        'yyyy-MM-dd'); // Para facilitar a criação de datas passadas/futuras
-
-    setState(() {
-      _allProjetos = [
-        // Projetos existentes
-        // Projeto(
-        //     cliente: cliente1,
-        //     tipoServico: tipoCasamento,
-        //     etapaProjeto: etapaFinalizado,
-        //     categoriaServico: categoriaCasamento,
-        //     observacao: "Casamento da Maria, tudo entregue.",
-        //     conclusao: true,
-        //     dataInicio: DateTime(2023, 10, 1),
-        //     dataFim: DateTime(2023, 10, 24),
-        //     prazo: DateTime(2023, 10, 25),
-        //     valor: 2500.00),
-        // Projeto(
-        //     cliente: cliente2,
-        //     tipoServico: tipoPreWedding,
-        //     etapaProjeto: etapaEmExecucao,
-        //     categoriaServico: categoriaEnsaio,
-        //     observacao: "Ensaio do João, aguardando seleção.",
-        //     conclusao: false,
-        //     dataInicio: DateTime(2023, 10, 18),
-        //     dataFim: null,
-        //     prazo: today.add(Duration(days: 5)),
-        //     valor: 850.00),
-        // Projeto(
-        //     cliente: cliente3,
-        //     tipoServico: tipoGestante,
-        //     etapaProjeto: etapaAgendado,
-        //     categoriaServico: categoriaEnsaio,
-        //     observacao: "Ensaio da Ana, confirmar local.",
-        //     conclusao: false,
-        //     dataInicio: today.add(Duration(days: 10)),
-        //     dataFim: null,
-        //     prazo: today.add(Duration(days: 30)),
-        //     valor: 600.00), // Agendado para o futuro
-        // Projeto(
-        //     cliente: cliente4,
-        //     tipoServico: tipoCorporativo,
-        //     etapaProjeto: etapaCancelada,
-        //     categoriaServico: categoriaCorp,
-        //     observacao: "Evento cancelado pelo cliente devido à chuva.",
-        //     conclusao: false,
-        //     dataInicio: DateTime(2023, 9, 1),
-        //     dataFim: null,
-        //     prazo: DateTime(2023, 9, 30),
-        //     valor: 1200.00,
-        //     cancelado: true),
-        // Projeto(
-        //     cliente: cliente5,
-        //     tipoServico: tipoAniversario,
-        //     etapaProjeto: etapaPendente,
-        //     categoriaServico: categoriaCasamento,
-        //     observacao: "Aguardando pagamento final e aprovação das fotos.",
-        //     conclusao: false,
-        //     dataInicio: DateTime(2023, 11, 1),
-        //     dataFim: null,
-        //     prazo: today.subtract(Duration(days: 3)),
-        //     valor: 750.00,
-        //     pendente: true),
-        // Projeto(
-        //     cliente: cliente6,
-        //     tipoServico: tipoEnsaioPessoal,
-        //     etapaProjeto: etapaAgendado,
-        //     categoriaServico: categoriaEnsaio,
-        //     observacao: "Ensaio pessoal Roberto, local definido.",
-        //     conclusao: false,
-        //     dataInicio: today.add(Duration(days: 15)),
-        //     dataFim: null,
-        //     prazo: today.add(Duration(days: 45)),
-        //     valor: 450.00), // Agendado para o futuro
-
-        // // Novos projetos para mais exemplos
-        // Projeto(
-        //   cliente: cliente7,
-        //   tipoServico: tipoProdutoStill,
-        //   etapaProjeto: etapaEdicao, // Nova etapa "Edição"
-        //   categoriaServico: categoriaProduto,
-        //   observacao: "Fotos para catálogo de e-commerce, 20 produtos.",
-        //   conclusao: false,
-        //   dataInicio:
-        //       today.subtract(Duration(days: 7)), // Iniciou semana passada
-        //   prazo: today.add(Duration(days: 7)), // Prazo para daqui uma semana
-        //   valor: 950.00,
-        // ),
-        // Projeto(
-        //   cliente: cliente8,
-        //   tipoServico: tipoVideoReels,
-        //   etapaProjeto: etapaAgendado,
-        //   categoriaServico: categoriaEnsaio,
-        //   observacao: "Vídeo curto para Instagram, tema outono.",
-        //   conclusao: false,
-        //   dataInicio: today.add(Duration(days: 3)), // Inicia em 3 dias
-        //   prazo: today.add(Duration(days: 10)),
-        //   valor: 350.00,
-        // ),
-        // Projeto(
-        //   cliente: cliente9,
-        //   tipoServico: tipoInstitucional,
-        //   etapaProjeto: etapaEmExecucao,
-        //   categoriaServico: categoriaCorp,
-        //   observacao: "Roteiro aprovado, iniciando filmagens externas.",
-        //   conclusao: false,
-        //   dataInicio: today.subtract(Duration(days: 10)),
-        //   prazo: today.add(Duration(days: 20)),
-        //   valor: 3200.00,
-        // ),
-        // Projeto(
-        //   cliente: cliente10,
-        //   tipoServico: tipoCasamento, // Outro casamento
-        //   etapaProjeto: etapaPendente, // Pendente de alguma definição
-        //   categoriaServico: categoriaCasamento,
-        //   observacao: "Aguardando escolha do álbum pelos noivos.",
-        //   conclusao:
-        //       false, // Ainda não concluído, mas a etapa principal pode ter sido
-        //   dataInicio: DateTime(2023, 8, 15), // Projeto mais antigo
-        //   dataFim: null, // Ainda não tem data fim real
-        //   prazo: DateTime(2023, 12, 30), // Prazo longo, mas está pendente
-        //   valor: 2800.00,
-        //   pendente: true,
-        // ),
-        // Projeto(
-        //   cliente: cliente1, // Cliente repetido, outro projeto
-        //   tipoServico: tipoEnsaioPessoal,
-        //   etapaProjeto: etapaAgendado,
-        //   categoriaServico: categoriaEnsaio,
-        //   observacao: "Novo ensaio para Maria, desta vez em estúdio.",
-        //   conclusao: false,
-        //   dataInicio: today.add(Duration(days: 25)),
-        //   prazo: today.add(Duration(days: 50)),
-        //   valor: 500.00,
-        // ),
-      ];
-      _populateDynamicFiltersFromData();
-      _applyAllFilters();
-    });
+      // 3. Atualiza o estado DENTRO de um único setState, já com os dados prontos.
+      // A verificação 'mounted' é uma boa prática em métodos async dentro de StateObjects.
+      if (mounted) {
+        setState(() {
+          _allProjetos = projetosCarregados;
+          // Agora que _allProjetos está preenchida, podemos popular os filtros
+          // e aplicar a lógica de exibição.
+          _populateDynamicFiltersFromData();
+          _applyAllFilters();
+        });
+      }
+    } catch (e) {
+      log("Ocorreu um erro ao carregar os projetos: $e");
+      // Opcional: Mostrar um SnackBar ou mensagem de erro para o usuário
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Falha ao carregar projetos. Verifique sua conexão."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   void _populateDynamicFiltersFromData() {
@@ -1163,15 +981,18 @@ class _ProjetosScreenState extends State<ProjetosScreen> {
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0))),
-              onPressed: () {
-                showDialog(
+              onPressed: () async {
+                await showDialog(
                   context: context,
                   builder: (builder) => NovoProjetoDialog(
-                      tiposDeServicoDisponiveis: _tiposServicoParaFiltro,
-                      etapasDeProjetoDisponiveis: []),
+                    onSave: (projeto) async {
+                      await createProjetoService(data: projeto.toJson())
+                          .then((onValue) {
+                        _loadProjetos();
+                      });
+                    },
+                  ),
                 );
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text("TODO: Chamar Dialog Novo Projeto")));
               },
             ),
           ]),

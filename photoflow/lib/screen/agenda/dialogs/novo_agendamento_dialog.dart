@@ -13,8 +13,8 @@ import 'package:photoflow/constants/constants.dart';
 import 'package:photoflow/models/agendamento/agendamento.dart';
 import 'package:photoflow/models/tiposervico/categoria.dart';
 import 'package:photoflow/models/tiposervico/tiposervico.dart';
-import 'package:photoflow/services/agendamento/create_agendamento_service.dart';
-import 'package:photoflow/services/categoria/get_categorias_service.dart';
+import 'package:photoflow/services/apis/agendamento/create_agendamento_service.dart';
+import 'package:photoflow/services/apis/categoria/get_categorias_service.dart';
 
 class NovoAgendamentoDialog extends StatefulWidget {
   final List<CategoriaServico> categorias;

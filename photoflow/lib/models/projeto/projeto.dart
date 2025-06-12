@@ -42,7 +42,7 @@ class Projeto {
   factory Projeto.fromJson(Map<String, dynamic> json) {
     return Projeto(
       cliente: Cliente.fromJson(json['cliente']),
-      tipoServico: Tiposervico.fromJson(json['tiposervico']),
+      tipoServico: Tiposervico.fromJson(json['tipoServico']),
       categoriaServico: CategoriaServico.fromJson(json['categoriaServico']),
       etapaProjeto: EtapaProjeto.fromJson(json['etapaProjeto']),
       observacao: json['observacao'] as String,
@@ -59,5 +59,17 @@ class Projeto {
       prazo: DateTime.parse(json['prazo'] as String),
       valor: (json['valor'] as num).toDouble(),
     );
+  }
+  Map<String, dynamic> toJson() {
+    return {
+      'valor': valor,
+      'observacao': observacao,
+      'dataInicio': dataInicio.toIso8601String(),
+      'prazo': dataFim?.toIso8601String(),
+      'clienteId': cliente.id,
+      'tipoServicoId': tipoServico.id,
+      'etapaProjetoId': etapaProjeto.id,
+      'categoriaServicoId': categoriaServico.id,
+    };
   }
 }

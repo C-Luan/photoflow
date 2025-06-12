@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,25 +10,25 @@ import 'package:photoflow/models/projeto/etapa_projeto.dart'; // Ajuste o caminh
 import 'package:photoflow/models/projeto/projeto.dart'; // Ajuste o caminho se necessário
 import 'package:photoflow/models/tiposervico/categoria.dart'; // Ajuste o caminho se necessário
 import 'package:photoflow/models/tiposervico/tiposervico.dart';
+import 'package:photoflow/services/apis/clientes/readcliente.dart';
+import 'package:photoflow/services/apis/etapaprojeto/readetapaprojeto.dart';
 
-import '../../../services/categoria/get_categorias_service.dart'; // Ajuste o caminho se necessário
+import '../../../services/apis/categoria/get_categorias_service.dart';
+import '../../cliente/dialog/addcliente_dialog.dart'; // Ajuste o caminho se necessário
 
 class NovoProjetoDialog extends StatefulWidget {
-  final List<Tiposervico> tiposDeServicoDisponiveis;
-  final List<EtapaProjeto> etapasDeProjetoDisponiveis;
-
   const NovoProjetoDialog({
     super.key,
-    required this.tiposDeServicoDisponiveis,
-    required this.etapasDeProjetoDisponiveis,
+    required this.onSave,
   });
-
+  final Function(Projeto) onSave;
   @override
   State<NovoProjetoDialog> createState() => _NovoProjetoDialogState();
 }
 
 class _NovoProjetoDialogState extends State<NovoProjetoDialog> {
   final _formKey = GlobalKey<FormState>();
+  final _clienteDropdown = GlobalKey<DropdownSearchState>();
   final _nomeClienteController = TextEditingController();
   final _dataInicioController = TextEditingController();
   final _prazoController = TextEditingController();
@@ -38,6 +40,7 @@ class _NovoProjetoDialogState extends State<NovoProjetoDialog> {
   List<Tiposervico> _tiposServicoFiltrados = [];
   Tiposervico? _selectedTipoServico;
   EtapaProjeto? _selectedEtapaProjeto;
+  Cliente? _selectedCliente;
   DateTime? _selectedDataInicio;
   DateTime? _selectedPrazo;
 
@@ -80,39 +83,18 @@ class _NovoProjetoDialogState extends State<NovoProjetoDialog> {
 
   void _salvarProjeto() {
     if (_formKey.currentState!.validate()) {
-      if (_selectedTipoServico == null ||
-          _selectedDataInicio == null ||
-          _selectedPrazo == null ||
-          _selectedEtapaProjeto == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content:
-                  Text('Por favor, preencha todos os campos obrigatórios.')),
-        );
-        return;
-      }
-      if (_selectedTipoServico!.categoria == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'Erro: Categoria não encontrada para o tipo de serviço selecionado.')),
-        );
-        return;
-      }
-
-      final cliente = Cliente(nome: _nomeClienteController.text);
-      final novoProjeto = Projeto(
-        valor: 0,
-        cliente: cliente,
+      Projeto novoProjeto = Projeto(
+        cliente: _selectedCliente!,
         tipoServico: _selectedTipoServico!,
         etapaProjeto: _selectedEtapaProjeto!,
-        categoriaServico: _selectedTipoServico!.categoria!,
+        categoriaServico: _categoriaSelecionada!,
         observacao: _observacoesController.text,
         conclusao: false,
         dataInicio: _selectedDataInicio!,
         prazo: _selectedPrazo!,
-        dataFim: null,
+        valor: double.parse(_valorController.text),
       );
+      widget.onSave(novoProjeto);
       Navigator.of(context).pop(novoProjeto);
     }
   }
@@ -164,18 +146,88 @@ class _NovoProjetoDialogState extends State<NovoProjetoDialog> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _buildFormFieldTitle("Nome do Cliente"),
-                  TextFormField(
-                    controller: _nomeClienteController,
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "Nome completo do cliente"),
-                    validator: (value) => (value == null || value.isEmpty)
-                        ? 'Campo obrigatório.'
-                        : null,
+                  _buildFormFieldTitle("Cliente"),
+                  DropdownSearch<Cliente>(
+                    key: _clienteDropdown,
+                    compareFn: (item, selectedItem) =>
+                        item.id == selectedItem.id,
+                    onChanged: (value) async {
+                      if (value?.id == -1) {
+                        // Item fictício clicado: abrir diálogo de cadastro
+                        final novoCliente = await showDialog<Cliente>(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              AddEditClientDialog(),
+                        );
+
+                        if (novoCliente != null) {
+                          setState(() {
+                            _selectedCliente = novoCliente;
+                          });
+                        }
+                      } else {
+                        setState(() {
+                          _selectedCliente = value;
+                        });
+                      }
+                    },
+                    selectedItem: _selectedCliente,
+                    itemAsString: (item) => item.nome,
+                    popupProps: PopupProps.menu(
+                      searchDelay: Duration.zero,
+                      title: Padding(
+                        padding: EdgeInsets.all(12.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Selecione um Cliente',
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            TextButton(
+                                onPressed: () async => await showDialog(
+                                            context: context,
+                                            builder: (builder) =>
+                                                AddEditClientDialog())
+                                        .then((onValue) {
+                                      _clienteDropdown.currentState
+                                          ?.closeDropDownSearch() ;
+                                    }),
+                                child: Text('Adicionar Cliente'))
+                          ],
+                        ),
+                      ),
+                      showSearchBox: true,
+                      searchFieldProps: const TextFieldProps(
+                        cursorColor: Colors.blue,
+                        decoration: InputDecoration(
+                          labelText: 'Buscar Cliente',
+                          hintText: 'Digite o nome do cliente...',
+                        ),
+                      ),
+                    ),
+                    items: (filter, loadProps) async {
+                      List<Cliente> clientes = [];
+                      String? token =
+                          await FirebaseAuth.instance.currentUser?.getIdToken();
+                      if (token == null) return [];
+
+                      final response = await getClienteService(token: token);
+                      if (response != null && response.statusCode == 200) {
+                        for (var element in response.data) {
+                          clientes.add(Cliente.fromJson(element));
+                        }
+                      }
+
+                      // Adiciona o botão como último "cliente fictício"
+
+                      return clientes;
+                    },
                   ),
+
                   SizedBox(height: _spacerHeightMedium),
-                  _buildFormFieldTitle("Tipo de Ensaio/Serviço"),
+                  _buildFormFieldTitle("Categoria"),
                   DropdownSearch<CategoriaServico>(
                     compareFn: (item, selectedItem) =>
                         item.nome ==
@@ -227,10 +279,11 @@ class _NovoProjetoDialogState extends State<NovoProjetoDialog> {
                         child: Text(ts.nome, overflow: TextOverflow.ellipsis),
                       );
                     }).toList(),
-                    onChanged: _tiposServicoFiltrados.isEmpty
-                        ? null
-                        : (newValue) =>
-                            setState(() => _tipoServicoSelecionado = newValue),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedTipoServico = value;
+                      });
+                    },
                     validator: (value) =>
                         value == null ? 'Selecione um tipo de serviço.' : null,
                   ),
@@ -283,28 +336,32 @@ class _NovoProjetoDialogState extends State<NovoProjetoDialog> {
                   ),
                   SizedBox(height: _spacerHeightMedium),
                   _buildFormFieldTitle("Status Inicial"),
-                  DropdownButtonFormField<EtapaProjeto>(
-                    decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: "Selecione o status"),
-                    value: _selectedEtapaProjeto,
-                    isExpanded: true,
-                    items: widget.etapasDeProjetoDisponiveis
-                        .map((EtapaProjeto etapa) {
-                      return DropdownMenuItem<EtapaProjeto>(
-                        value: etapa,
-                        child:
-                            Text(etapa.nome, overflow: TextOverflow.ellipsis),
-                      );
-                    }).toList(),
-                    onChanged: (EtapaProjeto? newValue) {
-                      setState(() {
-                        _selectedEtapaProjeto = newValue;
-                      });
+                  DropdownSearch<EtapaProjeto>(
+                    compareFn: (item, selectedItem) =>
+                        item.nome ==
+                        selectedItem.nome, // Or item.nome == selectedItem.nome
+
+                    onChanged: (value) {
+                      _selectedEtapaProjeto = value;
                     },
-                    validator: (value) =>
-                        value == null ? 'Campo obrigatório.' : null,
+                    selectedItem: _selectedEtapaProjeto,
+                    itemAsString: (item) => item.nome,
+                    items: (filter, loadProps) async {
+                      List<EtapaProjeto> categorias = [];
+                      String? token =
+                          await FirebaseAuth.instance.currentUser!.getIdToken();
+                      await getEtapaprojetoService(token: token ?? '')
+                          .then((onValue) {
+                        if (onValue != null && onValue.statusCode == 200) {
+                          for (var element in onValue.data) {
+                            categorias.add(EtapaProjeto.fromJson(element));
+                          }
+                        }
+                      });
+                      return categorias;
+                    },
                   ),
+
                   SizedBox(height: _spacerHeightMedium),
                   _buildFormFieldTitle("Observações"),
                   TextFormField(

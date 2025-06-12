@@ -5,9 +5,9 @@ import 'package:photoflow/screen/agenda/agendahome.dart';
 import 'package:photoflow/screen/cliente/cliente_screen.dart';
 import 'package:photoflow/screen/dashboard/dashboard_screen.dart';
 import 'package:photoflow/screen/financeiro/financeiro_screen.dart';
-import 'package:photoflow/screen/projetos/projetos.dart';
+import 'package:photoflow/screen/projetos/projetoscreen.dart';
 import 'package:photoflow/screen/settings/settings_screen.dart';
-import 'package:photoflow/services/loginserver/authservicefirebase.dart';
+import 'package:photoflow/services/apis/loginserver/authservicefirebase.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 // Package imports:
 import 'package:intl/intl.dart';
-import 'package:photoflow/services/agendamento/get_agendamento_service.dart';
+import 'package:photoflow/services/apis/agendamento/get_agendamento_service.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart' as sfc;
 import 'package:table_calendar/table_calendar.dart' as tc;
 
@@ -18,7 +18,7 @@ import 'package:photoflow/models/agendamento/agendamento.dart';
 import 'package:photoflow/models/tiposervico/categoria.dart';
 import 'package:photoflow/models/tiposervico/tiposervico.dart';
 
-import '../../services/categoria/get_categorias_service.dart';
+import '../../services/apis/categoria/get_categorias_service.dart';
 import 'dialogs/novo_agendamento_dialog.dart';
 import 'sections/agendamentos_section.dart';
 import 'sections/calendar_section.dart';
