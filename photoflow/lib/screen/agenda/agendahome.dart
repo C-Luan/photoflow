@@ -188,14 +188,14 @@ class AgendaPanelState extends State<AgendaPanel> {
 
   void _editAppointment(Agendamento agendamento) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Ação 'Editar' para: ${agendamento.nome}")),
+      SnackBar(content: Text("Ação 'Editar' para: ${agendamento.cliente.nome}")),
     );
   }
 
   void _deleteAppointment(Agendamento agendamento) {
     // TODO: Implementar lógica de exclusão com diálogo de confirmação.
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Ação 'Excluir' para: ${agendamento.nome}")),
+      SnackBar(content: Text("Ação 'Excluir' para: ${agendamento.cliente.nome}")),
     );
   }
 

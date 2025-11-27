@@ -46,7 +46,7 @@ class _AgendamentosSectionState extends State<AgendamentosSection> {
     final query = _searchController.text.toLowerCase();
     setState(() {
       _filteredAgendamentos = widget.agendamentos.where((ag) {
-        return ag.nome.toLowerCase().contains(query) ||
+        return ag.cliente.nome.toLowerCase().contains(query) ||
             ag.tipoServico!.nome.toLowerCase().contains(query);
       }).toList();
     });
@@ -157,7 +157,7 @@ class _AgendamentosSectionState extends State<AgendamentosSection> {
                             DataColumn(label: Text('DATA')),
                             DataColumn(label: Text('HORA')),
                             DataColumn(label: Text('CLIENTE')),
-                            DataColumn(label: Text('SERVIÇO')),
+                            // DataColumn(label: Text('SERVIÇO')),
                             DataColumn(label: Text('CATEGORIA')),
                             DataColumn(label: Text('VALOR')),
                             DataColumn(label: Text('AÇÕES')),
@@ -169,8 +169,8 @@ class _AgendamentosSectionState extends State<AgendamentosSection> {
                                     .format(agendamento.data))),
                                 DataCell(Text(DateFormat('HH:mm')
                                     .format(agendamento.data))),
-                                DataCell(Text(agendamento.nome)),
-                                DataCell(Text(agendamento.tipoServico!.nome)),
+                                DataCell(Text(agendamento.cliente.nome)),
+                                // DataCell(Text(agendamento.tipoServico!.nome)),
                                 DataCell(Text("N/A")), // Placeholder
                                 DataCell(Text("R\$ --,--")), // Placeholder
                                 DataCell(Row(

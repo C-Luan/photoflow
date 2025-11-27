@@ -68,7 +68,7 @@ class CalendarSection extends StatelessWidget {
       return sfc.Appointment(
         startTime: ag.data,
         endTime: ag.data.add(const Duration(hours: 1)),
-        subject: '${ag.servico} - ${ag.nome}',
+        subject: '${ag.servico} - ${ag.cliente.nome}',
         color: Colors.teal,
         id: ag.id,
         notes: 'Tel: ${ag.telefone}',
@@ -77,18 +77,46 @@ class CalendarSection extends StatelessWidget {
   }
 
   Future<void> _showNovoAgendamentoDialog(BuildContext context) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext dialogContext) {
-        return NovoAgendamentoDialog(
+     await Navigator.of(context).push(
+            PageRouteBuilder(
+              opaque:
+                  false, // Set to false for translucent background if desired
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  NovoAgendamentoDialog(
           categorias: categorias,
           todosTiposServico: tiposServico,
           initialDate: selectedDay,
           onSave: onNewAppointmentSaved,
-        );
-      },
-    );
+        ),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    // Define the slide-in transition from right to left
+                    const begin = Offset(
+                      1.0,
+                      0.0,
+                    ); // Start from the right (1.0 on X axis)
+                    const end = Offset
+                        .zero; // End at its normal position (0.0 on X axis)
+                    const curve = Curves.easeOut; // A smooth easing curve
+
+                    var tween = Tween(
+                      begin: begin,
+                      end: end,
+                    ).chain(CurveTween(curve: curve));
+
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
+            ));
+    // return showDialog<void>(
+    //   context: context,
+    //   barrierDismissible: false,
+    //   builder: (BuildContext dialogContext) {
+        
+    //   },
+    // );
   }
 
   @override

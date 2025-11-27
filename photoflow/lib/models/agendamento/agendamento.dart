@@ -1,8 +1,9 @@
+import 'package:photoflow/models/cliente/cliente.dart';
 import 'package:photoflow/models/tiposervico/tiposervico.dart';
 
 class Agendamento {
   String? id;
-  String nome;
+  Cliente cliente;
   String email;
   String telefone;
   DateTime data;
@@ -11,7 +12,7 @@ class Agendamento {
   Tiposervico? tipoServico;
   Agendamento({
     this.id,
-    required this.nome,
+    required this.cliente,
     required this.email,
     required this.telefone,
     required this.data,
@@ -23,7 +24,7 @@ class Agendamento {
   factory Agendamento.fromJson(Map<String, dynamic> json) {
     return Agendamento(
       id: json['id'],
-      nome: json['nome'],
+      cliente: Cliente.fromJson(json['cliente']),
       email: json['email'],
       telefone: json['telefone'],
       data: DateTime.parse(json['data']),
@@ -37,7 +38,7 @@ class Agendamento {
 
   Map<String, dynamic> toMap() {
     return {
-      'nome': nome,
+      'clienteId': cliente.id,
       'email': email,
       'telefone': telefone,
       'data': data.toIso8601String(),
@@ -48,6 +49,6 @@ class Agendamento {
 
   @override
   String toString() {
-    return 'Agendamento{id: $id, nome: $nome, email: $email, telefone: $telefone, data: $data, servico: $servico}';
+    return 'Agendamento{id: $id, nome: ${cliente.nome}, email: $email, telefone: $telefone, data: $data, servico: $servico}';
   }
 }
